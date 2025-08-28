@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Satuan Cepat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+        }
+
+        /* HEADER DAN TOMBOL BACK */
+        .header {
+            position: absolute; /* Menggunakan absolute agar tidak mengganggu layout utama */
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        .back-btn {
+            font-size: 2.5em;
+            text-decoration: none;
+            color: #3498db;
+            transition: color 0.2s;
+        }
+        .back-btn:hover {
+            color: #2980b9;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5em;
+            font-size: 2em;
+        }
+
+        p {
+            color: #7f8c8d;
+            margin-bottom: 2em;
+        }
+
+        .unit-type-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 2em;
+        }
+
+        .unit-type-buttons button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            background-color: #ffffff;
+            color: #3498db;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .unit-type-buttons button.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .input-section {
+            display: none;
+        }
+
+        .input-section.active {
+            display: block;
+        }
+
+        .conversion-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 2em;
+            text-align: left;
+        }
+
+        .conversion-input-group label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .conversion-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .conversion-input-row input,
+        .conversion-input-row select {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .conversion-input-row select {
+            background-color: white;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M9.293%2012.95l.707.707%204.95-4.95a.999.999%200%200%200-1.414-1.414L10%2011.536%206.172%207.707a.999.999%200%200%200-1.414%201.414l4.121%204.122z%22%20fill%3D%22%233498db%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+            padding-right: 30px;
+        }
+        .conversion-input-row span {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        .result-box {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        .result-box h2 {
+            margin-top: 0;
+            color: #3498db;
+        }
+
+        #result-display {
+            font-size: 1.2em;
+            color: #2c3e50;
+            line-height: 1.6;
+            min-height: 1.6em;
+        }
+
+        /* RESPONSIVE UNTUK MOBILE */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1.5em;
+                margin-top: 60px;
+            }
+            .header {
+                padding: 10px 15px;
+            }
+            .back-btn {
+                font-size: 2em;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .unit-type-buttons button {
+                flex: 1 1 45%;
+                font-size: 0.9em; /* Ukuran font lebih kecil agar tidak tumpang tindih */
+                padding: 8px 15px; /* Padding lebih kecil */
+            }
+            .conversion-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .conversion-input-row span {
+                margin: 5px 0;
+                text-align: center; /* Rata tengah untuk tampilan yang lebih rapi */
+            }
+            .conversion-input-row input,
+            .conversion-input-row select {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman utama">←</a>
+    </div>
+
+    <div class="container">
+        <h1>Konverter Satuan Cepat</h1>
+        <p>Pilih jenis konversi dan masukkan nilai untuk mendapatkan hasilnya.</p>
+        
+        <div class="unit-type-buttons">
+            <button id="length-btn" class="active">Panjang</button>
+            <button id="weight-btn">Berat</button>
+            <button id="temp-btn">Suhu</button>
+            <button id="volume-btn">Volume</button>
+            <button id="speed-btn">Kecepatan</button>
+            <button id="data-btn">Data</button>
+        </div>
+
+        <div id="length-section" class="input-section active">
+            <div class="conversion-input-group">
+                <label for="length-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="length-input" placeholder="Masukkan nilai" step="any">
+                    <select id="length-from">
+                        <option value="meter">Meter (m)</option>
+                        <option value="kilometer">Kilometer (km)</option>
+                        <option value="centimeter">Centimeter (cm)</option>
+                        <option value="milimeter">Milimeter (mm)</option>
+                        <option value="mil">Mil (mi)</option>
+                        <option value="yard">Yard (yd)</option>
+                        <option value="kaki">Kaki (ft)</option>
+                        <option value="inci">Inci (in)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="length-to">
+                        <option value="kilometer">Kilometer (km)</option>
+                        <option value="meter" selected>Meter (m)</option>
+                        <option value="centimeter">Centimeter (cm)</option>
+                        <option value="milimeter">Milimeter (mm)</option>
+                        <option value="mil">Mil (mi)</option>
+                        <option value="yard">Yard (yd)</option>
+                        <option value="kaki">Kaki (ft)</option>
+                        <option value="inci">Inci (in)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="weight-section" class="input-section">
+            <div class="conversion-input-group">
+                <label for="weight-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="weight-input" placeholder="Masukkan nilai" step="any">
+                    <select id="weight-from">
+                        <option value="kilogram">Kilogram (kg)</option>
+                        <option value="gram">Gram (g)</option>
+                        <option value="ons">Ons (oz)</option>
+                        <option value="pon">Pon (lb)</option>
+                        <option value="ton">Ton (t)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="weight-to">
+                        <option value="gram">Gram (g)</option>
+                        <option value="kilogram" selected>Kilogram (kg)</option>
+                        <option value="ons">Ons (oz)</option>
+                        <option value="pon">Pon (lb)</option>
+                        <option value="ton">Ton (t)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="temp-section" class="input-section">
+            <div class="conversion-input-group">
+                <label for="temp-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="temp-input" placeholder="Masukkan nilai" step="any">
+                    <select id="temp-from">
+                        <option value="celsius">Celsius (°C)</option>
+                        <option value="fahrenheit">Fahrenheit (°F)</option>
+                        <option value="kelvin">Kelvin (K)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="temp-to">
+                        <option value="fahrenheit">Fahrenheit (°F)</option>
+                        <option value="celsius" selected>Celsius (°C)</option>
+                        <option value="kelvin">Kelvin (K)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="volume-section" class="input-section">
+            <div class="conversion-input-group">
+                <label for="volume-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="volume-input" placeholder="Masukkan nilai" step="any">
+                    <select id="volume-from">
+                        <option value="liter">Liter (L)</option>
+                        <option value="mililiter">Mililiter (ml)</option>
+                        <option value="galon">Galon (gal)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="volume-to">
+                        <option value="mililiter">Mililiter (ml)</option>
+                        <option value="liter" selected>Liter (L)</option>
+                        <option value="galon">Galon (gal)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="speed-section" class="input-section">
+            <div class="conversion-input-group">
+                <label for="speed-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="speed-input" placeholder="Masukkan nilai" step="any">
+                    <select id="speed-from">
+                        <option value="kmh">Kilometer/jam (km/h)</option>
+                        <option value="ms">Meter/detik (m/s)</option>
+                        <option value="mph">Mil/jam (mph)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="speed-to">
+                        <option value="ms">Meter/detik (m/s)</option>
+                        <option value="kmh" selected>Kilometer/jam (km/h)</option>
+                        <option value="mph">Mil/jam (mph)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="data-section" class="input-section">
+            <div class="conversion-input-group">
+                <label for="data-input">Nilai:</label>
+                <div class="conversion-input-row">
+                    <input type="number" id="data-input" placeholder="Masukkan nilai" step="any">
+                    <select id="data-from">
+                        <option value="bit">Bit (b)</option>
+                        <option value="kilobit">Kilobit (Kb)</option>
+                        <option value="megabit">Megabit (Mb)</option>
+                        <option value="gigabit">Gigabit (Gb)</option>
+                        <option value="byte">Byte (B)</option>
+                        <option value="kilobyte">Kilobyte (KB)</option>
+                        <option value="megabyte">Megabyte (MB)</option>
+                        <option value="gigabyte">Gigabyte (GB)</option>
+                    </select>
+                    <span>ke</span>
+                    <select id="data-to">
+                        <option value="megabyte">Megabyte (MB)</option>
+                        <option value="gigabyte" selected>Gigabyte (GB)</option>
+                        <option value="bit">Bit (b)</option>
+                        <option value="kilobit">Kilobit (Kb)</option>
+                        <option value="megabit">Megabit (Mb)</option>
+                        <option value="gigabit">Gigabit (Gb)</option>
+                        <option value="byte">Byte (B)</option>
+                        <option value="kilobyte">Kilobyte (KB)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-box">
+            <h2>Hasil:</h2>
+            <p id="result-display"></p>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const unitTypeButtons = document.querySelectorAll('.unit-type-buttons button');
+    const inputSections = document.querySelectorAll('.input-section');
+    const resultDisplay = document.getElementById('result-display');
+
+    const conversions = {
+        length: {
+            base: 'meter',
+            factors: {
+                'kilometer': 1000,
+                'meter': 1,
+                'centimeter': 0.01,
+                'milimeter': 0.001,
+                'mil': 1609.344,
+                'yard': 0.9144,
+                'kaki': 0.3048,
+                'inci': 0.0254
+            },
+            names: {
+                'kilometer': 'Kilometer (km)',
+                'meter': 'Meter (m)',
+                'centimeter': 'Centimeter (cm)',
+                'milimeter': 'Milimeter (mm)',
+                'mil': 'Mil (mi)',
+                'yard': 'Yard (yd)',
+                'kaki': 'Kaki (ft)',
+                'inci': 'Inci (in)'
+            }
+        },
+        weight: {
+            base: 'kilogram',
+            factors: {
+                'ton': 1000,
+                'kilogram': 1,
+                'gram': 0.001,
+                'ons': 0.0283495,
+                'pon': 0.453592
+            },
+            names: {
+                'ton': 'Ton (t)',
+                'kilogram': 'Kilogram (kg)',
+                'gram': 'Gram (g)',
+                'ons': 'Ons (oz)',
+                'pon': 'Pon (lb)'
+            }
+        },
+        temp: {
+            base: 'celsius',
+            factors: {
+                'celsius': (val) => val,
+                'fahrenheit': (val) => (val - 32) * 5 / 9,
+                'kelvin': (val) => val - 273.15
+            },
+            convertBack: {
+                'celsius': (val) => val,
+                'fahrenheit': (val) => (val * 9 / 5) + 32,
+                'kelvin': (val) => val + 273.15
+            },
+            names: {
+                'celsius': 'Celsius (°C)',
+                'fahrenheit': 'Fahrenheit (°F)',
+                'kelvin': 'Kelvin (K)'
+            }
+        },
+        volume: {
+            base: 'liter',
+            factors: {
+                'liter': 1,
+                'mililiter': 0.001,
+                'galon': 3.78541
+            },
+            names: {
+                'liter': 'Liter (L)',
+                'mililiter': 'Mililiter (ml)',
+                'galon': 'Galon (gal)'
+            }
+        },
+        speed: {
+            base: 'ms',
+            factors: {
+                'kmh': 1000 / 3600,
+                'ms': 1,
+                'mph': 1609.344 / 3600
+            },
+            names: {
+                'kmh': 'Kilometer/jam (km/h)',
+                'ms': 'Meter/detik (m/s)',
+                'mph': 'Mil/jam (mph)'
+            }
+        },
+        data: {
+            base: 'bit',
+            factors: {
+                'bit': 1,
+                'kilobit': 1000,
+                'megabit': 1000 * 1000,
+                'gigabit': 1000 * 1000 * 1000,
+                'byte': 8,
+                'kilobyte': 8 * 1024,
+                'megabyte': 8 * 1024 * 1024,
+                'gigabyte': 8 * 1024 * 1024 * 1024
+            },
+            names: {
+                'bit': 'Bit (b)',
+                'kilobit': 'Kilobit (Kb)',
+                'megabit': 'Megabit (Mb)',
+                'gigabit': 'Gigabit (Gb)',
+                'byte': 'Byte (B)',
+                'kilobyte': 'Kilobyte (KB)',
+                'megabyte': 'Megabyte (MB)',
+                'gigabyte': 'Gigabyte (GB)'
+            }
+        }
+    };
+    
+    // Fungsi baru untuk memformat angka tanpa .toFixed()
+    function formatResult(value) {
+        if (Number.isInteger(value)) {
+            return value.toString();
+        } else {
+            // Menggunakan toPrecision untuk akurasi dan kemudian parseFloat untuk menghilangkan nol yang tidak perlu
+            const precision = 12; // Menjaga presisi hingga 12 digit
+            return parseFloat(value.toPrecision(precision)).toString();
+        }
+    }
+    
+    function convert(value, fromUnit, toUnit, type) {
+        if (type === 'temp') {
+            const baseValue = conversions.temp.factors[fromUnit](value);
+            return conversions.temp.convertBack[toUnit](baseValue);
+        } else {
+            let baseValue = value * conversions[type].factors[fromUnit];
+            let convertedValue = baseValue / conversions[type].factors[toUnit];
+            return convertedValue;
+        }
+    }
+
+    function setupConversionListeners(type) {
+        const input = document.getElementById(`${type}-input`);
+        const fromSelect = document.getElementById(`${type}-from`);
+        const toSelect = document.getElementById(`${type}-to`);
+
+        const handleConversion = () => {
+            const value = parseFloat(input.value);
+            const fromUnit = fromSelect.value;
+            const toUnit = toSelect.value;
+            
+            // Dapatkan nama unit lengkap dari objek conversions
+            const fromUnitName = conversions[type].names[fromUnit];
+            const toUnitName = conversions[type].names[toUnit];
+            
+            if (isNaN(value)) {
+                resultDisplay.textContent = 'Masukkan nilai angka.';
+                return;
+            }
+
+            const result = convert(value, fromUnit, toUnit, type);
+            
+            // Format hasilnya menggunakan fungsi baru
+            const formattedResult = formatResult(result);
+            
+            resultDisplay.innerHTML = `${value} ${fromUnitName} = <b>${formattedResult}</b> ${toUnitName}`;
+        };
+        
+        handleConversion();
+
+        input.addEventListener('input', handleConversion);
+        fromSelect.addEventListener('change', handleConversion);
+        toSelect.addEventListener('change', handleConversion);
+    }
+    
+    unitTypeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            unitTypeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            inputSections.forEach(section => section.classList.remove('active'));
+            const targetSectionId = button.id.replace('-btn', '-section');
+            document.getElementById(targetSectionId).classList.add('active');
+            
+            const activeInput = document.querySelector('.input-section.active input');
+            activeInput.value = '';
+            resultDisplay.textContent = '';
+            
+            const type = button.id.replace('-btn', '');
+            setupConversionListeners(type);
+        });
+    });
+
+    setupConversionListeners('length');
+});
+</script>
+</body>
+</html>

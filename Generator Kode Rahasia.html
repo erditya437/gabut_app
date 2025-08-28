@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kode Rahasia</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e6f0ff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+
+        /* Tombol Kembali */
+        .header {
+            position:absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .back-btn {
+            font-size: 2.5em;
+            text-decoration: none;
+            color: #1d1d1e;
+            transition: color 0.2s;
+        }
+        .back-btn:hover {
+            color: #303030;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        h1 {
+            color: #004080;
+            margin-bottom: 0.5em;
+            font-size: 2.2em;
+        }
+
+        p {
+            color: #4a69bd;
+            margin-bottom: 2em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            margin-bottom: 1em;
+            border: 2px solid #a0c0e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            resize: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5em;
+        }
+        
+        button {
+            padding: 1em 2em;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #encrypt-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        #encrypt-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        #decrypt-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        #decrypt-btn:hover {
+            background-color: #5a6268;
+        }
+
+        #copy-btn {
+            background-color: #20aa2d;
+            color: rgb(255, 255, 255);
+            margin-top: 10px;
+        }
+        #copy-btn:hover {
+            background-color: #218837;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+            z-index: 100;
+        }
+        .notification.show {
+            opacity: 1;
+            top: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 90%;
+                padding: 1.5em;
+                margin-top: 60px;
+            }
+            .buttons {
+                flex-direction: column;
+                gap: 1em;
+            }
+            button {
+                width: 100%;
+            }
+            .header {
+                padding: 10px 15px;
+            }
+            .back-btn {
+                font-size: 2em;
+            }
+            .notification {
+                top: 40px;
+                padding: 10px 20px;
+            }
+            .notification.show {
+                top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman sebelumnya">←</a>
+    </div>
+
+    <div class="container">
+        <h1>Generator Kode Rahasia ✨</h1>
+        <p>Ketik pesanmu di sini, lalu ubah jadi kode rahasia atau dekripsi pesan temanmu!</p>
+
+        <textarea id="inputText" placeholder="Ketik pesanmu di sini..."></textarea>
+        
+        <div class="buttons">
+            <button id="encrypt-btn">Enkripsi 🔒</button>
+            <button id="decrypt-btn">Dekripsi 🔓</button>
+        </div>
+
+        <p style="margin-top: 2em;">Hasil Kode:</p>
+        <div class="output-wrapper">
+            <textarea id="outputText" placeholder="Hasil akan muncul di sini..." readonly></textarea>
+        </div>
+        <button id="copy-btn">Salin</button>
+    </div>
+
+    <div id="copyNotification" class="notification"></div>
+
+    <script>
+        const encryptionMap = {
+            'a': '(つ ͡° ͜ʖ ͡°)つ', 'b': 'ʕ•́ᴥ•̀ʔ', 'c': '(งツ)ว', 'd': '(づ｡◕‿‿◕｡)づ',
+            'e': '( ﾟДﾟ)⊃', 'f': 'ʕ•͡-•ʔ', 'g': 'ლ(•́•́ლ)', 'h': '(ノ￣ω￣)ノ',
+            'i': 'ᕦ(ò_ó)ᕤ', 'j': '(╯✧▽✧)╯', 'k': '(ง°ل͜°)ง', 'l': 'ಥ_ಥ',
+            'm': '(｡◕‿◕｡)', 'n': '(◕‿◕✿)', 'o': '(•_•)', 'p': 'ಠ_ಠ',
+            'q': '(⌐■_■)', 'r': '༼ つ ◕_◕ ༽つ', 's': '¯\_(ツ)_/¯', 't': '(._.)',
+            'u': 'ヽ(・∀・)ﾉ', 'v': 'o(｀ω´ )o', 'w': 'o(〃＾▽＾〃)o', 'x': '(´･ω･`)',
+            'y': 'ヾ(⌐■_■)ノ♪', 'z': '(￣^￣)ゞ', ' ': '(＾ω＾)', '!': '!', '?': '?',
+            '.': '.', ',': ',', '0': 'o', '1': '1', '2': '2', '3': '3', '4': '4',
+            '5': '5', '6': '6', '7': '7', '8': '8', '9': '9'
+        };
+
+        const decryptionMap = {};
+        for (const [key, value] of Object.entries(encryptionMap)) {
+            decryptionMap[value] = key;
+        }
+
+        const inputTextarea = document.getElementById('inputText');
+        const outputTextarea = document.getElementById('outputText');
+        const encryptBtn = document.getElementById('encrypt-btn');
+        const decryptBtn = document.getElementById('decrypt-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const copyNotification = document.getElementById('copyNotification');
+
+        function encrypt() {
+            const input = inputTextarea.value.toLowerCase();
+            let output = '';
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i];
+                output += encryptionMap[char] || char;
+            }
+            outputTextarea.value = output;
+        }
+
+        function decrypt() {
+            let input = inputTextarea.value;
+            for (const [key, value] of Object.entries(decryptionMap)) {
+                input = input.replaceAll(key, value);
+            }
+            outputTextarea.value = input;
+        }
+        
+        function copyOutput() {
+            const textToCopy = outputTextarea.value;
+            if (textToCopy.trim() === '') {
+                copyNotification.textContent = "Tidak ada teks";
+                copyNotification.style.color = 'red';
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 2000);
+                return;
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyNotification.textContent = "Berhasil disalin!";
+                copyNotification.style.color = 'green';
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin:', err);
+                copyNotification.textContent = "Gagal menyalin.";
+                copyNotification.style.color = '#e74c3c';
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        encryptBtn.addEventListener('click', encrypt);
+        decryptBtn.addEventListener('click', decrypt);
+        copyBtn.addEventListener('click', copyOutput);
+    </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halaman Utama</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1a73e8;
+      --secondary-color: #e3f2fd;
+      --text-color: #333;
+      --card-bg: #fff;
+      --bg-color: #f7faff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+  
+
+    /* 🔹 Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, var(--primary-color), #2196f3);
+      color: white;
+      border-radius: 0 0 20px 20px;
+      margin-bottom: 50px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    .hero h1 {
+      font-size: 3em;
+      font-weight: 700;
+      animation: slideInDown 1s ease-out;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      max-width: 600px;
+      margin: 15px auto;
+      opacity: 0;
+      animation: fadeIn 1.5s ease-out 0.5s forwards;
+    }
+
+    /* 🔹 Apps Grid */
+    .apps-section {
+      padding: 0 20px 50px;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+    }
+
+    .app-card {
+      background-color: var(--card-bg);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: var(--text-color);
+      border: 2px solid transparent;
+      opacity: 0;
+      animation: slideInUp 1s ease-out forwards;
+    }
+
+    .app-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+      border-color: var(--primary-color);
+    }
+
+    .app-card span {
+      font-size: 2em;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .app-card h3 {
+      color: var(--primary-color);
+      margin: 10px 0;
+      font-size: 1.4em;
+    }
+
+    .app-card p {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    /* 🔹 About & Tips */
+    .content-section {
+      padding: 50px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+
+    .about-section, .tips-section {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      opacity: 0;
+      animation: fadeIn 1s ease-out 1s forwards;
+    }
+
+    .about-section h2, .tips-section h2 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      text-align: center;
+    }
+
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid var(--primary-color);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+      animation: scaleIn 1s ease-out 1.2s forwards;
+      opacity: 0;
+    }
+
+    .profile-img:hover {
+      transform: scale(1.05);
+    }
+
+    .tips-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .tips-list li {
+      background-color: var(--secondary-color);
+      padding: 15px;
+      border-left: 5px solid var(--primary-color);
+      margin-bottom: 15px;
+      border-radius: 8px;
+      transition: transform 0.3s;
+    }
+
+    .tips-list li:hover {
+      transform: translateX(10px);
+    }
+
+    /* 🔹 Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: var(--text-color);
+      color: white;
+     
+      opacity: 0;
+      animation: fadeIn 1s ease-out 1.5s forwards;
+    }
+
+    
+
+    /* 🔹 Animasi */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInUp { from { opacity: 0; transform: translateY(50px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes slideInDown { from { opacity: 0; transform: translateY(-50px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.8);} to { opacity: 1; transform: scale(1);} }
+
+    /* 🔹 Responsif */
+    @media (max-width: 768px) {
+        .hero {
+        border-radius: 0 0 100px;
+         text-align: left;
+      }
+      .hero h1 {
+         font-size: 2.2em; 
+        }
+     
+      .profile-img { width: 120px; height: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+ 
+
+  <!-- 🔹 Hero -->
+  <div class="hero">
+    <h1>Gabut</h1>
+    <p>Aplikasi seru untuk isi waktu gabutmu.</p>
+  
+  </div>
+
+  <div class="container">
+    <!-- 🔹 Apps Section -->
+    <div id="apps" class="apps-section">
+      <div class="apps-grid">
+        <a href="Uji Kecepatan Mengetik.html" class="app-card">
+          <span>⌨️</span>
+          <h3>Tes Kecepatan Mengetik</h3>
+          <p>Uji seberapa cepat dan akurat kamu mengetik.</p>
+        </a>
+
+        <a href="Simulasi Manajemen Uang.html" class="app-card">
+          <span>💰</span>
+          <h3>Manajemen Uang Sultan</h3>
+          <p>Jual beli barang untuk jadi kaya raya.</p>
+        </a>
+
+        <a href="Cari Barang.html" class="app-card">
+          <span>🛍️</span>
+          <h3>Cari Barang</h3>
+          <p>Temukan barang di daftar belanjaanmu.</p>
+        </a>
+
+        <a href="Generator Kode Rahasia.html" class="app-card">
+          <span>🔐</span>
+          <h3>Kode Rahasia</h3>
+          <p>Buat & baca pesan rahasia dengan kode unik.</p>
+        </a>
+
+        <a href="Habiskan uang 100 kuadriliun.html" class="app-card">
+          <span>💸</span>
+          <h3>Habiskan Uang 100 Kuadriliun</h3>
+          <p>Beli barang mewah sampai uang habis.</p>
+        </a>
+
+         <a href="Work Tycoon.html" class="app-card">
+          <span>🛠️</span>
+          <h3>Work Tycoon</h3>
+          <p>Dari Klik jadi Konglomerat</p>
+        </a>
+
+        <a href="Username Generator.html" class="app-card">
+          <span>🎮</span>
+          <h3>Generator Username</h3>
+          <p>Cari nama unik buat akun game & sosmed.</p>
+        </a>
+
+        <a href="Transliterasi Nama Pribadi.html" class="app-card">
+          <span>🌐</span>
+          <h3>Translate Nama</h3>
+          <p>Cari tahu arti nama dalam bahasa lain.</p>
+        </a>
+
+        <a href="Konverter Angka ke Huruf.html" class="app-card">
+          <span>🔢</span>
+          <h3>Konversi Angka</h3>
+          <p>Ubah angka jadi ejaan huruf.</p>
+        </a>
+
+        <a href="Konverter Angka Romawi.html" class="app-card">
+          <span>🏛️</span>
+          <h3>Angka Romawi</h3>
+          <p>Konversi angka biasa ke angka Romawi.</p>
+        </a>
+
+        <a href="Konverter Satuan.html" class="app-card">
+          <span>⚖️</span>
+          <h3>Konversi Satuan</h3>
+          <p>Ubah panjang, berat, suhu, & lainnya.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- 🔹 About -->
+    <div id="about" class="content-section">
+      <div class="about-section">
+        <h2>Tentang Aplikasi Ini</h2>
+        <div class="profile-card">
+          <img src="/images/download.jpeg" alt="Foto Profil Erditya Megantoro" class="profile-img">
+          <h3>Erditya Megantoro</h3>
+          <p>
+            Proyek kecil ini dibuat untuk hiburan. 
+            Ada banyak mini apps seru yang bisa kamu coba kapan aja. 
+          </p>
+        </div>
+      </div>
+
+      <!-- 🔹 Tips -->
+      <div id="tips" class="tips-section">
+        <h2>Catatan & Tips</h2>
+        <ul class="tips-list">
+          <li><strong>⌨️ Tes Mengetik:</strong> Fokus akurasi dulu, kecepatan akan ikut.</li>
+          <li><strong>💰 Manajemen Uang:</strong> Beli saat murah, jual saat harga naik.</li>
+          <li><strong>🎮 Generator Username:</strong> Gabungkan kata favoritmu untuk hasil unik.</li>
+          <li><strong>🌐 Translate Nama:</strong> Anggap sebagai hiburan, bukan fakta mutlak.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Footer -->
+  <footer class="footer">
+    <p>Dibuat oleh Erditya Megantoro</p>
+  </footer>
+</body>
+</html>

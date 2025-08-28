@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Angka ke Huruf</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* HEADER DAN TOMBOL BACK */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        .back-btn {
+            font-size: 2.5em;
+            text-decoration: none;
+            color: #3498db;
+            transition: color 0.2s;
+        }
+        .back-btn:hover {
+            color: #2980b9;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 80px; /* Memberi ruang untuk tombol "Back" */
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5em;
+            font-size: 2em;
+        }
+
+        p {
+            color: #7f8c8d;
+            margin-bottom: 2em;
+        }
+
+        .input-group {
+            margin-bottom: 1.5em;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        button {
+            padding: 1em 2em;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-box {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 2em;
+            text-align: left;
+            display: none;
+        }
+
+        .result-box h2 {
+            margin-top: 0;
+            color: #3498db;
+        }
+
+        #result-text {
+            font-size: 1.2em;
+            color: #2c3e50;
+            line-height: 1.6;
+            word-wrap: break-word; /* Untuk mencegah teks terlalu panjang */
+        }
+        
+        /* RESPONSIVE UNTUK MOBILE */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1.5em;
+                margin-top: 60px;
+            }
+            .header {
+                padding: 10px 15px;
+            }
+            .back-btn {
+                font-size: 2em;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman sebelumnya">←</a>
+    </div>
+
+    <div class="container">
+        <h1>Konverter Angka ke Huruf</h1>
+        <p>Masukkan angka (hingga triliun) untuk dikonversi menjadi teks.</p>
+
+        <div class="input-group">
+            <label for="number-input">Masukkan Angka:</label>
+            <input type="number" id="number-input" placeholder="Misal: 120, 1500000" min="0">
+        </div>
+
+        <button id="convert-btn">Konversi</button>
+
+        <div id="result-box" class="result-box">
+            <h2>Hasil:</h2>
+            <p id="result-text"></p>
+        </div>
+    </div>
+
+    <script>
+        const numberInput = document.getElementById('number-input');
+        const convertBtn = document.getElementById('convert-btn');
+        const resultBox = document.getElementById('result-box');
+        const resultText = document.getElementById('result-text');
+
+        const numbers = [
+            '', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'
+        ];
+        const units = ['', 'ribu', 'juta', 'miliar', 'triliun'];
+
+        function terbilangTigaDigit(n) {
+            if (n === 0) return '';
+            if (n < 12) return numbers[n];
+            if (n >= 12 && n <= 19) return numbers[n % 10] + ' belas';
+            if (n >= 20 && n <= 99) {
+                const puluhan = numbers[Math.floor(n / 10)];
+                const satuan = numbers[n % 10];
+                return `${puluhan} puluh ${satuan}`.trim();
+            }
+            const ratusan = Math.floor(n / 100);
+            const sisa = n % 100;
+            const ratusanStr = (ratusan === 1) ? 'seratus' : `${numbers[ratusan]} ratus`;
+            const sisaStr = terbilangTigaDigit(sisa);
+            return `${ratusanStr} ${sisaStr}`.trim();
+        }
+
+        function terbilang(n) {
+            if (n === 0) return 'nol';
+            if (n > 999999999999999) return 'Angka terlalu besar.';
+            
+            let result = '';
+            let i = 0;
+            
+            while (n > 0) {
+                const group = n % 1000;
+                if (group > 0) {
+                    let text = terbilangTigaDigit(group);
+                    if (i > 0) {
+                        if (group === 1 && i === 1) {
+                            text = 'seribu';
+                        } else {
+                            text += ` ${units[i]}`;
+                        }
+                    }
+                    result = `${text} ${result}`.trim();
+                }
+                n = Math.floor(n / 1000);
+                i++;
+            }
+            return result;
+        }
+
+        convertBtn.addEventListener('click', () => {
+            let num = numberInput.value;
+            if (num === '' || isNaN(num) || num < 0) {
+                resultText.textContent = 'Masukkan angka yang valid.';
+                resultBox.style.display = 'block';
+                return;
+            }
+
+            num = parseInt(num, 10);
+            resultText.textContent = terbilang(num);
+            resultBox.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

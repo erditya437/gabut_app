@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habiskan Uang 100 Kuadriliun</title>
+    <style>
+        /* CSS Umum dan Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER dan Tombol BACK */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .back-btn {
+            font-size: 2.5em;
+            text-decoration: none;
+            color: #4a4a4a;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #000;
+        }
+
+        /* Kontainer Utama */
+        .main-content-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgb(255, 255, 255);
+            margin-top: 100px;
+        }
+
+        /* Bagian Saldo "Sticky" */
+        .sticky-header {
+            position: sticky;
+            top: 20px;
+            z-index: 5;
+            border-radius: 10px;
+            background-color: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.411);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .money-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Tampilan Produk */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding-top: 20px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 100px; /* Atur tinggi gambar agar konsisten */
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-name {
+            font-size: 0.9em;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+            min-height: 3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #3bbf13;
+            margin-top: 10px;
+            font-size: 1em; /* Ukuran default */
+        }
+        
+        .product-price.small {
+            font-size: 0.7em; /* Ukuran untuk harga panjang */
+        }
+
+        /* Tombol Beli */
+        .buy-btn {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #0bb2ef;
+            border: none;
+            margin-top: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .buy-btn:hover:enabled {
+            background-color: #007db3;
+        }
+
+        .buy-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Bagian Informasi dan Daftar Pembelian */
+        .info-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .info-section h1 {
+            font-size: 2.5em;
+            color: #0095ff;
+            margin-bottom: 10px;
+        }
+
+        .info-section p {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .receipt-section {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .receipt-section h2 {
+            font-size: 1.5em;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .purchased-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #555;
+        }
+
+        .purchased-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .purchased-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Tombol Reset */
+        .reset-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .reset-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #7b1212;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .reset-btn:hover {
+            background-color: #7e2020;
+        }
+        
+        /* POPUP */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .popup-overlay.show .popup-content {
+            transform: scale(1);
+        }
+
+        .popup-content h2 {
+            color: #28a745;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .popup-content p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .popup-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .popup-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .main-content-container {
+                padding-top: 20px;
+        
+            }
+            .info-section h1 {
+                font-size: 20px
+            }
+            .info-section p {
+                font-size: 12px;
+            }
+            .money-display {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .product-name {
+                font-size: 12px;
+            }
+            .product-price {
+                font-size: 10px;
+            }
+
+            .product-price.small {
+                font-size: 10px; /* Sesuaikan ukuran font untuk harga panjang di mobile */
+            }
+
+            .buy-btn {
+                font-size: 10px;
+                padding: 6px;
+            }
+            .receipt-section {
+                padding: 15px;
+                font-size: 10px;
+            }
+            .receipt-section h2 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman sebelumnya">←</a>
+    </div>
+
+    <div class="main-content-container">
+        <div class="info-section">
+            <h1>Habiskan Uang 100 Kuadriliun!</h1>
+            <p>Kamu diberi uang Rp100.000.000.000.000.000. Habiskan semuanya dengan membeli barang-barang mewah di bawah ini!</p>
+        </div>
+
+        <div class="sticky-header">
+            <div class="money-display" id="money-display">
+                Rp100,000,000,000,000,000
+            </div>
+        </div>
+
+        <div class="receipt-section">
+            <h2>📃 Daftar Pembelian</h2>
+            <ul class="purchased-list" id="purchased-items">
+                <li>Belum ada pembelian...</li>
+            </ul>
+        </div>
+        
+        <div class="products-grid" id="products-grid">
+        </div>
+
+        <div class="reset-container">
+            <button class="reset-btn" onclick="resetGame()">Reset Permainan</button>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="gameOverPopup">
+        <div class="popup-content">
+            <h2>Keren!</h2>
+            <p>Uang 100 kuadriliun berhasil kamu habiskan!</p>
+            <button class="popup-btn" onclick="resetGame()">Ulang</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Produk
+        const products = [
+            { name: "Pesawat Ulang Alik SpaceX", price: 200000000000000, image: "https://tse3.mm.bing.net/th/id/OIP.KflO39scNcyj2tXamxLfkQHaE8?pid=Api&P=0&h=220" },
+            { name: "Pulau Pribadi di Kepulauan Bahama", price: 50000000000000, image: "https://storage.googleapis.com/prod-elle-bucket-nyx-2022/2019/05/The-Hayman-Pool-Cabana-Hayman-Island-by-InterContinental.jpg" },
+            { name: "Yacht Mewah Super Class", price: 10000000000000, image: "https://id.seastellayachts.com/uploads/201920412/affordable-luxury-yachts39410243707.jpg" },
+            { name: "Koleksi Mobil Mewah Langka", price: 5000000000000, image: "https://tse1.mm.bing.net/th/id/OIP.M1BOqlObV9WRX73oX5JrowHaEK?pid=Api&P=0&h=220" },
+            { name: "Icon Of The Seas", price: 1000000000000, image: "https://tse3.mm.bing.net/th/id/OIP.O62kk1PeGT_d78FD9hZIJQHaEK?pid=Api&P=0&h=220" },
+            { name: "Pesawat Airbus Pribadi", price: 500000000000, image: "https://tse4.mm.bing.net/th/id/OIP.S564H99vckk-2AxsZWMGWQHaEF?pid=Api&P=0&h=220" },
+            { name: "Lukisan 'Mona Lisa' Asli", price: 100000000000, image: "https://asset-2.tstatic.net/travel/foto/bank/images/lukisan-mona-lisa-di-museum-louvre-prancis.jpg" },
+            { name: "Kastil Versailles, Prancis", price: 50000000000, image: "https://tse3.mm.bing.net/th/id/OIP.IU5ELq4Ux9Bc10QHhDH0iAHaEJ?pid=Api&P=0&h=220" },
+            { name: "Lamborghini Aventador", price: 10000000000, image: "https://tse4.mm.bing.net/th/id/OIP.JugBMBp7ummagJNe8rvC0AHaD4?pid=Api&P=0&h=220" },
+            { name: "Rumah di Beverly Hills", price: 5000000000, image: "https://www.emporioarchitect.com/img/blog/ide-desain-rumah-mewah-untuk-anda-250822084131586497.jpg" },
+            { name: "Jam Tangan Berlian Langka", price: 1000000000, image: "https://down-id.img.susercontent.com/file/id-11134207-7r98v-lwims2k7m0ot97" },
+            { name: "Satu Ton Emas Batangan", price: 500000000, image: "https://tse1.mm.bing.net/th/id/OIP.IBhqRy8mmojczzT1c9BOsgHaEg?pid=Api&P=0&h=220" },
+            { name: "ISS-ESA", price: 100000000000000, image: "https://tse1.mm.bing.net/th/id/OIP.TxLYf6BkJaHleO9JvGOmvgHaE8?pid=Api&P=0&h=220" },
+            { name: "Satu Unit Roket Falcon 9", price: 62000000, image: "https://tse1.mm.bing.net/th/id/OIP.w4_sdVzDAFiaMU-8dQ0y6AHaE8?pid=Api&P=0&h=220" },
+            { name: "beli 1 Burj khalifa", price: 600000000000000, image: "https://tse3.mm.bing.net/th/id/OIP.AQLvAOcydsF5SQDM1aXBCwHaE_?pid=Api&P=0&h=220" },
+            { name: "beli 1 abraj al bait ", price: 450000000000000, image: "https://tse4.mm.bing.net/th/id/OIP.tCE5ww0FDzGkpRywP5p2hQHaJg?pid=Api&P=0&h=220" },
+            { name: "Pagani Zonda R", price: 800000000000, image: "https://tse3.mm.bing.net/th/id/OIP._ecKOl0rOvGHxu0khh1XKgHaE8?pid=Api&P=0&h=220" },
+            { name: "Cn Tower", price: 300000000000000, image: "https://tse3.mm.bing.net/th/id/OIP.6-fhokQashGoicsNjPDG4wHaFj?pid=Api&P=0&h=220" },
+            { name: "Kapal Selam Pribadi", price: 20000000, image: "https://tse1.mm.bing.net/th/id/OIP.jFC_FZRsfduSoaadUbrFzgHaE8?pid=Api&P=0&h=220" },
+            { name: "Beli 1 Jeddah Tower", price: 700000000000000, image: "https://up.yimg.com/ib/th/id/OIP.-7g1Pm7HcmIiVkHjbW6yTwHaEo?pid=Api&rs=1&c=1&qlt=95&w=171&h=107" }
+        ];
+
+        let userMoney = 100000000000000000;
+        let purchasedItems = [];
+
+        // Fungsi untuk memformat mata uang Rupiah
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Fungsi untuk menampilkan pop-up game over
+        function showGameOverPopup() {
+            document.getElementById('gameOverPopup').classList.add('show');
+        }
+
+        // Fungsi untuk menyembunyikan pop-up game over
+        function hideGameOverPopup() {
+            document.getElementById('gameOverPopup').classList.remove('show');
+        }
+
+        // Fungsi untuk memperbarui tampilan uang dan tombol
+        function updateDisplay() {
+            document.getElementById('money-display').textContent = formatMoney(userMoney);
+            const buyButtons = document.querySelectorAll('.buy-btn');
+            
+            // Cek apakah uang sudah habis
+            const isGameOver = userMoney <= 0;
+
+            buyButtons.forEach(btn => {
+                const price = parseInt(btn.dataset.price);
+                btn.disabled = userMoney < price || isGameOver;
+            });
+            
+            // Tampilkan pop-up jika uang sudah habis
+            if (isGameOver) {
+                showGameOverPopup();
+            }
+        }
+
+        // Fungsi untuk membeli produk
+        function buyProduct(product) {
+            if (userMoney >= product.price) {
+                userMoney -= product.price;
+                purchasedItems.push(product);
+                updateDisplay();
+                updatePurchasedList();
+            }
+        }
+        
+        // Fungsi untuk memperbarui daftar pembelian
+        function updatePurchasedList() {
+            const list = document.getElementById('purchased-items');
+            list.innerHTML = '';
+            
+            if (purchasedItems.length === 0) {
+                list.innerHTML = '<li>Belum ada pembelian...</li>';
+                return;
+            }
+            
+            purchasedItems.forEach((item) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${item.name}</span> <span>${formatMoney(item.price)}</span>`;
+                list.appendChild(li);
+            });
+        }
+        
+        // Fungsi untuk mereset permainan
+        function resetGame() {
+            userMoney = 100000000000000000;
+            purchasedItems = [];
+            updateDisplay();
+            updatePurchasedList();
+            hideGameOverPopup();
+        }
+
+        // Fungsi untuk menampilkan produk di halaman
+       // Fungsi untuk menampilkan produk di halaman
+        function initializeProducts() {
+            const grid = document.getElementById('products-grid');
+            products.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                const formattedPrice = formatMoney(product.price);
+                const priceLength = formattedPrice.length;
+                
+                let priceClass = '';
+                if (priceLength > 15) { // Atur ambang batas karakter, misalnya 15
+                    priceClass = 'small';
+                }
+
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-price ${priceClass}">${formattedPrice}</div>
+                        <button class="buy-btn" data-price="${product.price}" onclick="buyProduct(products[${index}])">
+                            Beli
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            updateDisplay();
+        }
+
+        // Memulai permainan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', initializeProducts);
+    </script>
+</body>
+</html>

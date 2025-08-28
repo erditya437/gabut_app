@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aset Kamu</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            color: #343a40;
+            margin: 0;
+            padding: 10px 0 0 0;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Container and Header */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 100px auto 0;
+            box-sizing: border-box;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2em;
+            color: #495057;
+            text-decoration: none;
+            z-index: 2000;
+        }
+
+        .header-main {
+            text-align: center;
+        }
+
+        h1 {
+            color: #0080ff;
+            font-size: 25px;
+            margin: 0;
+        }
+
+        /* Money and Button Section */
+        .money-sticky-wrapper {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            padding: 10px 0;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .money-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #26a418;
+            margin: 15px 0;
+            padding: 10px 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.306);
+            text-align: center;
+        }
+
+        .asset-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .claim-btn, .toggle-farming-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .claim-btn {
+            background-color: #2ad60f;
+        }
+
+        .claim-btn:hover {
+            background-color: #03b300;
+            transform: translateY(-2px);
+        }
+
+        .toggle-farming-btn.active {
+            background-color: #007bff;
+        }
+
+        .toggle-farming-btn.inactive {
+            background-color: #dc3545;
+        }
+
+        /* Asset Grid */
+        .asset-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .asset-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            width: calc(50% - 10px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            transition: transform 0.2s ease;
+        }
+
+        .asset-card.purchased {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .asset-card:hover:not(.purchased) {
+            transform: translateY(-5px);
+        }
+
+        .asset-card h3 {
+            margin: 0 0 8px;
+            color: #495057;
+            font-size: 1.1em;
+        }
+
+        .asset-card p {
+            margin: 0 0 10px;
+            font-size: 0.85em;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .asset-card .price {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #12ff1e;
+            margin: 10px 0;
+        }
+
+        .asset-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9em;
+            color: #fff;
+            background-color: #38b316;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .buy-btn:disabled {
+            background-color: #54c823;
+            cursor: not-allowed;
+        }
+
+        .buy-btn:hover:not(:disabled) {
+            background-color: #0d9a0d;
+        }
+
+        /* Pop-up Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #343a40;
+        }
+
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .claim-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 15px;
+        }
+
+        .claim-all-btn {
+            background-color: #2ddc0e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .claim-all-btn:hover {
+            background-color: #218838;
+        }
+
+        .claim-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .claim-item {
+            padding: 15px;
+            border-bottom: 1px solid #d5d5d5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .claim-item:last-child {
+            border-bottom: none;
+        }
+
+        .claim-info h4 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #239421;
+        }
+
+        .claim-info p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+                /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 100px; /* Ubah dari 'bottom' ke 'top' dan sesuaikan jaraknya */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 132, 255, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+        }
+
+        /* Media Queries */
+        @media (max-width: 767px) {
+            .container {
+                padding: 15px;
+                margin-top: 80px;
+            }
+            .modal-content {
+                max-width: 100%;
+                margin: 30% auto;
+            }
+            .asset-card {
+                width: calc(50% - 10px);
+            }
+            .asset-card h3 {
+                font-size: 0.9em;
+            }
+            .asset-card p {
+                font-size: 0.75em;
+            }
+            .asset-card .price {
+                font-size: 10px;
+            }
+            .buy-btn {
+                font-size: 0.8em;
+            }
+            .claim-info h4 {
+                font-size: 14px;
+            }
+
+             .toast-notification {
+                font-size: 12px;
+        }
+        }
+
+        @media (min-width: 768px) {
+            .asset-card {
+                width: calc(33.333% - 10px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<a href="Work Tycoon.html" class="back-arrow">←</a>
+
+<div class="container">
+    <div class="header-main">
+        <h1>Aset Kamu</h1>
+        <p>Beli aset untuk mendapatkan penghasilan pasif!</p>
+    </div>
+
+    <div class="money-sticky-wrapper">
+        <div class="money-display">
+            Uang: <span id="money-amount">Rp 0</span>
+        </div>
+    </div>
+
+    <div class="asset-buttons">
+        <button id="claim-btn" class="claim-btn">Klaim Penghasilan Aset 💰</button>
+        <button id="toggle-farming-btn" class="toggle-farming-btn">Mulai Farming</button>
+    </div>
+
+    <div class="asset-list" id="asset-list"></div>
+</div>
+
+<div id="claim-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Penghasilan Aset</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <ul id="claim-list" class="claim-list"></ul>
+        </div>
+        <div class="claim-modal-footer">
+            <button id="claim-all-btn" class="claim-all-btn">Klaim Semua</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-notification" class="toast-notification"></div>
+
+<script>
+    // Game State Variables
+    let playerMoney = 0;
+    let purchasedAssets = [];
+    let earnedRewards = [];
+    let isFarmingActive = false;
+    let onlineIncomeInterval;
+
+    // Asset Data
+    const assets = [
+        { id: 1, name: "Stand Lemonade", price: 50000, income: 100, incomePer: "detik", image_url: "https://tse2.mm.bing.net/th/id/OIP._YCeaRYImapR6DjMJKAl1gHaJ4?pid=Api&h=220&P=0" },
+        { id: 2, name: "Mesin Vending", price: 100000, income: 250, incomePer: "detik", image_url: "https://gea-rsa.com/gea-rsa/assets/front/uploads/product/D720-10C(10SP).jpg" },
+        { id: 3, name: "Warung Kopi Kecil", price: 250000, income: 500, incomePer: "detik", image_url: "https://i.pinimg.com/originals/a0/4d/8d/a04d8dc588ce0f4d0d986a5c454f557b.jpg" },
+        { id: 4, name: "Apartemen", price: 800000000, income: 50000000, incomePer: "detik" , image_url: "https://tse3.mm.bing.net/th/id/OIP.VVL-t8zP0hQx1hds7eKoSAHaHa?pid=Api&h=220&P=0" },
+        { id: 5, name: "Toko Kelontong", price: 50000000, income: 1000000, incomePer: "detik", image_url: "https://ottopay.id/lkapps/wp-content/uploads/2022/08/14-0-liputan4-com-1200x900.jpg" },
+        { id: 6, name: "Mobil Rental", price: 1000000, income: 50000, incomePer: "detik", image_url: "https://www.doktermobil.com/wp-content/uploads/2024/07/Perbedaan-Mobil-LCGC-dengan-Mobil-Biasa.jpg" },
+        { id: 7, name: "Kantor Kecil", price: 1500000, income: 300000, incomePer: "detik", image_url: "https://parboaboa.com/data/foto_berita/kantor-min-rmh.webp" },
+        { id: 8, name: "Restoran Mewah", price: 200000000, income: 12000000, incomePer: "detik", image_url: "https://images.harpersbazaar.co.id/unsafe/0x0/smart/media/body_7c8cc6c3c53d4a5f8b3a21151e1ed334.jpg" },
+        { id: 9, name: "Tanah Kavling", price: 500000000, income: 20000000, incomePer: "detik", image_url: "https://tse3.mm.bing.net/th/id/OIP.S4yS8bvkQNofZ-UTe5BkcAHaE7?pid=Api&h=220&P=0" },
+        { id: 10, name: "Toko Emas", price: 100000000, income: 5000000, incomePer: "detik" , image_url: "https://alamatbagus.com/wp-content/uploads/2024/03/list-toko-emas-jambi.jpg" },
+        { id: 11, name: "Pabrik Gula", price: 800000000, income: 70000000, incomePer: "detik" , image_url: "https://home.rejosomanisindo.com/storage/articles/teknologi-modern-di-balik-produksi-gula-rmi_1661392733.webp" },
+        { id: 12, name: "Hotel Melati", price: 90000000, income: 800000, incomePer: "detik" , image_url: "https://tse4.mm.bing.net/th/id/OIP.nPNmQs6cm7VToKJ7oHv1iwHaE8?pid=Api&h=220&P=0" },
+        { id: 13, name: "Tambang emas", price: 1000000000000, income: 100000000000, incomePer: "detik" , image_url: "https://mitech-ndt.co.id/wp-content/uploads/2021/01/tambang-emas-compressed.jpg" },
+        { id: 14, name: "Tambang berlian", price: 3000000000000, income: 300000000000, incomePer: "detik" , image_url: "https://ilmutambang.com/wp-content/uploads/2023/09/Tambang-Emas-Toka-Tindung.webp" },
+        { id: 15, name: "Perusahaan Teknologi", price: 650000000, income: 35000000, incomePer: "detik" , image_url: "https://berita.teknologi.id/images/?path=https://lh4.googleusercontent.com/fde9K2gHpS35heGwT4M5lojeNl4rqlAf5MVpMLEqj_lzhpZKIn9k0SlqLDMDGzlKEP3ySQwL_bSis6jDppeXl3SJJGmyEYYPqDqnjzoTw_a0ebcgBN4cFCELQ5Ve07OWE_psnvs9&size=720x400" },
+        { id: 16, name: "Minyak Bumi", price: 6000000000000, income: 500000000000, incomePer: "detik" , image_url: "https://tse3.mm.bing.net/th/id/OIP.5zq4QI3AOtctIxFEW9bExAHaFK?pid=Api&h=220&P=0" }
+    ];
+
+    // DOM Elements
+    const moneyAmountEl = document.getElementById('money-amount');
+    const assetListEl = document.getElementById('asset-list');
+    const claimBtn = document.getElementById('claim-btn');
+    const toggleFarmingBtn = document.getElementById('toggle-farming-btn');
+    const claimModal = document.getElementById('claim-modal');
+    const claimListEl = document.getElementById('claim-list');
+    const modalCloseBtn = document.querySelector('.modal .close-btn');
+    const claimAllBtn = document.getElementById('claim-all-btn');
+    const toastNotificationEl = document.getElementById('toast-notification');
+
+    // Helper function to show a floating toast notification
+    function showToast(message) {
+        toastNotificationEl.textContent = message;
+        toastNotificationEl.classList.add('show');
+        setTimeout(() => {
+            toastNotificationEl.classList.remove('show');
+        }, 3000);
+    }
+
+    // Save game state to Local Storage
+    function saveGame() {
+        localStorage.setItem('playerMoney', playerMoney);
+        localStorage.setItem('purchasedAssets', JSON.stringify(purchasedAssets));
+        localStorage.setItem('earnedRewards', JSON.stringify(earnedRewards));
+        localStorage.setItem('lastKnownTime', Date.now());
+        localStorage.setItem('isFarmingActive', isFarmingActive);
+    }
+
+    // Load game state from Local Storage
+    function loadGame() {
+        const savedMoney = localStorage.getItem('playerMoney');
+        const savedPurchasedAssets = localStorage.getItem('purchasedAssets');
+        const savedEarnedRewards = localStorage.getItem('earnedRewards');
+        const savedLastKnownTime = localStorage.getItem('lastKnownTime');
+        const savedFarmingStatus = localStorage.getItem('isFarmingActive');
+
+        // Restore money, or set a starting amount
+        playerMoney = savedMoney !== null ? parseInt(savedMoney, 10) : 1000000;
+        
+        // Restore arrays and farming status
+        purchasedAssets = savedPurchasedAssets !== null ? JSON.parse(savedPurchasedAssets) : [];
+        earnedRewards = savedEarnedRewards !== null ? JSON.parse(savedEarnedRewards) : [];
+        isFarmingActive = savedFarmingStatus !== null ? (savedFarmingStatus === 'true') : false;
+
+        // Calculate and add offline income if farming was active
+        if (isFarmingActive && savedLastKnownTime !== null) {
+            const timeDifference = Date.now() - parseInt(savedLastKnownTime, 10);
+            calculateOfflineIncome(timeDifference);
+        }
+
+        updateDisplay();
+        renderAssets();
+        updateFarmingButton();
+        if (isFarmingActive) {
+            startOnlineIncomeGeneration();
+        }
+    }
+
+    // Calculate income earned while the page was closed
+    function calculateOfflineIncome(timeDifference) {
+        if (purchasedAssets.length === 0) return;
+
+        const secondsPassed = Math.floor(timeDifference / 1000);
+        if (secondsPassed <= 0) return;
+
+        let totalOfflineIncome = 0;
+        purchasedAssets.forEach(assetId => {
+            const asset = assets.find(a => a.id === assetId);
+            if (asset) {
+                totalOfflineIncome += asset.income * secondsPassed;
+            }
+        });
+
+        if (totalOfflineIncome > 0) {
+            earnedRewards.push({
+                amount: totalOfflineIncome,
+                message: `Anda mendapatkan Rp ${totalOfflineIncome.toLocaleString('id-ID')} dari penghasilan offline!`,
+                id: Date.now()
+            });
+            saveGame();
+            showToast("Penghasilan offline berhasil dihitung!");
+        }
+    }
+
+    // Start the interval for generating income every second
+    function startOnlineIncomeGeneration() {
+        // Clear any existing interval to prevent duplicates
+        if (onlineIncomeInterval) {
+            clearInterval(onlineIncomeInterval);
+        }
+
+        onlineIncomeInterval = setInterval(() => {
+            if (isFarmingActive && purchasedAssets.length > 0) {
+                purchasedAssets.forEach(assetId => {
+                    const asset = assets.find(a => a.id === assetId);
+                    if (asset) {
+                        earnedRewards.push({
+                            amount: asset.income,
+                            message: `${asset.name} - + Rp ${asset.income.toLocaleString('id-ID')}`,
+                            id: Date.now() + Math.random()
+                        });
+                    }
+                });
+                saveGame();
+            }
+        }, 1000);
+    }
+
+    // Update the farming button text and style
+    function updateFarmingButton() {
+        if (isFarmingActive) {
+            toggleFarmingBtn.textContent = 'Farming Aktif 🟢';
+            toggleFarmingBtn.classList.remove('inactive');
+            toggleFarmingBtn.classList.add('active');
+        } else {
+            toggleFarmingBtn.textContent = 'Farming Nonaktif 🔴';
+            toggleFarmingBtn.classList.remove('active');
+            toggleFarmingBtn.classList.add('inactive');
+        }
+    }
+
+    // Toggle the farming status
+    function toggleFarming() {
+        isFarmingActive = !isFarmingActive;
+        updateFarmingButton();
+        if (isFarmingActive) {
+            startOnlineIncomeGeneration();
+            showToast("Farming dimulai!");
+        } else {
+            clearInterval(onlineIncomeInterval);
+            showToast("Farming dihentikan.");
+        }
+        saveGame();
+    }
+
+    // Update the money display
+    function updateDisplay() {
+        moneyAmountEl.textContent = `Rp ${playerMoney.toLocaleString('id-ID')}`;
+    }
+
+    // Handle buying an asset
+    function buyAsset(asset) {
+        if (playerMoney >= asset.price) {
+            playerMoney -= asset.price;
+            purchasedAssets.push(asset.id);
+            updateDisplay();
+            saveGame();
+            showToast(`Berhasil membeli ${asset.name}!`);
+            renderAssets();
+        } else {
+            showToast(`Uang tidak cukup untuk membeli ${asset.name}.`);
+        }
+    }
+
+    // Render the list of all assets
+    function renderAssets() {
+        assetListEl.innerHTML = '';
+        assets.forEach(asset => {
+            const assetCard = document.createElement('div');
+            const isPurchased = purchasedAssets.includes(asset.id);
+            assetCard.className = `asset-card`;
+
+            assetCard.innerHTML = `
+                <img src="${asset.image_url}" alt="${asset.name}" class="asset-image">
+                <h3>${asset.name}</h3>
+                <p>Harga: Rp ${asset.price.toLocaleString('id-ID')}</p>
+                <p class="income-info">Penghasilan: Rp ${asset.income.toLocaleString('id-ID')} / detik</p>
+                <button class="buy-btn" ${isPurchased ? 'disabled' : ''}>${isPurchased ? 'Sudah Dimiliki' : 'Beli'}</button>
+            `;
+
+            const buyBtn = assetCard.querySelector('.buy-btn');
+            buyBtn.addEventListener('click', () => buyAsset(asset));
+
+            if (isPurchased) {
+                assetCard.classList.add('purchased');
+            }
+
+            assetListEl.appendChild(assetCard);
+        });
+    }
+
+    // Render the list of claimable rewards in the modal
+    function renderClaimList() {
+        claimListEl.innerHTML = '';
+        const totalPendingIncome = earnedRewards.reduce((sum, reward) => sum + reward.amount, 0);
+
+        if (earnedRewards.length === 0) {
+            claimListEl.innerHTML = `<li style="text-align: center; color: #888;">Tidak ada penghasilan yang tersedia untuk diklaim.</li>`;
+            claimAllBtn.disabled = true;
+            claimAllBtn.textContent = 'Klaim Semua';
+            return;
+        }
+
+        claimAllBtn.disabled = false;
+        claimAllBtn.textContent = `Klaim Semua (Rp ${totalPendingIncome.toLocaleString('id-ID')})`;
+
+        earnedRewards.forEach(reward => {
+            const claimItem = document.createElement('li');
+            claimItem.className = 'claim-item';
+
+            claimItem.innerHTML = `
+                <div class="claim-info">
+                    <h4>${reward.message}</h4>
+                    <p>Nilai: Rp ${reward.amount.toLocaleString('id-ID')}</p>
+                </div>
+            `;
+            claimListEl.appendChild(claimItem);
+        });
+    }
+
+    // Claim all rewards and add them to the player's money
+    function claimAllRewards() {
+        if (earnedRewards.length === 0) {
+            return;
+        }
+
+        let totalIncome = 0;
+        earnedRewards.forEach(reward => {
+            totalIncome += reward.amount;
+        });
+
+        playerMoney += totalIncome;
+        showToast(`Berhasil mengklaim total Rp ${totalIncome.toLocaleString('id-ID')}!`);
+        earnedRewards = [];
+        
+        updateDisplay();
+        renderClaimList();
+        saveGame();
+        claimModal.style.display = 'none';
+    }
+
+    // Event Listeners
+    claimBtn.addEventListener('click', () => {
+        renderClaimList();
+        claimModal.style.display = 'block';
+    });
+
+    toggleFarmingBtn.addEventListener('click', toggleFarming);
+
+    claimAllBtn.addEventListener('click', claimAllRewards);
+
+    modalCloseBtn.addEventListener('click', () => {
+        claimModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === claimModal) {
+            claimModal.style.display = 'none';
+        }
+    });
+
+    // Initial game load
+    loadGame();
+</script>
+
+</body>
+</html>

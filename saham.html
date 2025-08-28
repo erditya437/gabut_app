@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sultan Gabut: Saham</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-color: #f0f2f5;
+            --card-bg: #fff;
+            --text-color: #333;
+            --light-blue: #e3f2fd;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 50px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+        }
+
+        /* Kontainer baru untuk saldo yang sticky */
+        .money-sticky-container {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.381);
+            position: sticky;
+            top: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .current-money {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3da318;
+            margin: 0;
+        }
+
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 600px) {
+            .item-list {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .item-card h3 {
+                font-size: 14px;
+                margin: 5px 0;
+            }
+
+            .item-card p {
+                font-size: 12px;
+                margin: 0;
+            }
+
+            .item-card img {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        .item-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .item-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .item-card h3 {
+            margin: 10px 0 5px;
+            color: var(--primary-color);
+        }
+
+        .item-card p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .item-card .price {
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .item-card .description {
+            font-size: 0.8em;
+            margin: 5px 0 0;
+            color: #888;
+        }
+
+        .item-card button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .item-card button:hover:not(:disabled) {
+            background-color: #165ab7;
+        }
+
+        .item-card button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .nav-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-buttons button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #165ab7;
+        }
+        
+        .modal-overlay {
+            display:none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 80vh;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modal-in 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modal-in {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .claim-list-container {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 8px;
+        }
+
+        .claim-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--success-color);
+            transition: transform 0.2s;
+        }
+
+        .claim-card:hover {
+            transform: translateX(5px);
+        }
+
+        .claim-card h4, .claim-card p {
+            margin: 0;
+        }
+
+        .claim-card h4 {
+            color: var(--primary-color);
+        }
+
+        .claim-card .claim-info {
+            flex-grow: 1;
+        }
+
+        .claim-card button {
+            background-color: var(--success-color);
+            color: white;
+            padding: 8px 18px;
+            margin-top: 0;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .claim-card button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .claim-card button:active {
+            transform: scale(0.95);
+        }
+
+        #claim-all-saham-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        #claim-all-saham-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 3000;
+        }
+
+        .notification {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            animation: slide-in 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .notification.success {
+            border-left: 5px solid var(--success-color);
+        }
+
+        .notification.danger {
+            border-left: 5px solid var(--danger-color);
+        }
+
+        .notification-icon {
+            font-size: 24px;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--success-color);
+        }
+
+        .notification.danger .notification-icon {
+            color: var(--danger-color);
+        }
+
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.fade-out {
+            animation: slide-out 0.5s forwards cubic-bezier(0.55, 0.085, 0.68, 0.53);
+        }
+
+        @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Gaya untuk tombol kembali baru */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #006aff;
+        }
+
+       
+    </style>
+</head>
+<body>
+    <a href="Simulasi Manajemen Uang.html" class="back-button">←</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>Pasar Saham</h1>
+            <p>Saat anda Keluar dari aplikasi Keuntungan Dari saham akan terus Bertambah</p>
+        </div>
+        <div class="money-sticky-container">
+            <p class="current-money" id="money-display">Loading...</p>
+        </div>
+        <div class="nav-buttons">
+            <button id="claim-saham-btn">Klaim Bonus Saham</button>
+        </div>
+        <div class="item-list" id="saham-list">
+        </div>
+    </div>
+    
+    <div id="saham-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" id="close-saham-modal-btn">&times;</span>
+            <h2>Bonus Saham yang Siap Diklaim</h2>
+            <div id="unclaimed-saham-list" class="claim-list-container">
+                <p id="empty-saham-bonus-message" style="text-align:center;">Belum ada bonus saham yang siap diklaim.</p>
+            </div>
+            <button id="claim-all-saham-btn" style="display:none;">Klaim Semua Bonus</button>
+        </div>
+    </div>
+    
+    <div id="notification-container"></div>
+
+    <script>
+        const moneyDisplay = document.getElementById('money-display');
+        const sahamListContainer = document.getElementById('saham-list');
+        const claimSahamBtn = document.getElementById('claim-saham-btn');
+        const sahamModalOverlay = document.getElementById('saham-modal-overlay');
+        const closeSahamModalBtn = document.getElementById('close-saham-modal-btn');
+        const unclaimedSahamList = document.getElementById('unclaimed-saham-list');
+        const emptySahamBonusMessage = document.getElementById('empty-saham-bonus-message');
+        const claimAllSahamBtn = document.getElementById('claim-all-saham-btn');
+        const notificationContainer = document.getElementById('notification-container');
+
+        let money;
+        let passiveBonuses;
+        let ownedStocks = [];
+        let otherUnclaimedBonuses = [];
+        let unclaimedSahamBonuses = [];
+
+        const stocks = [
+            { id: 'saham-tech', name: 'Saham Perusahaan Teknologi', price: 500000000, passiveAmount: 20000000, interval: 20000, imgUrl: 'https://vector41.com/wp-content/uploads/2019/05/Arsitek-Medan-2019-Desain-bangunan-kantor-Mark-Dynamic-6.jpg' },
+            { id: 'saham-emas', name: 'Saham Perusahaan Emas', price: 2000000000, passiveAmount: 50000000, interval: 50000, imgUrl: 'https://i.ytimg.com/vi/TnVDdLYz8fw/maxresdefault.jpg' },
+            { id: 'saham-oil', name: 'Saham Perusahaan Minyak', price: 100000000000, passiveAmount: 30000000000, interval: 50000, imgUrl: 'https://ilmutambang.com/wp-content/uploads/2021/05/Kenali-yuk-Metode-dan-Teknik-Penambangan-Minyak-Bumi.jpg' },
+            { id: 'saham-real-estate', name: 'Saham Perusahaan Real Estate', price: 750000000, passiveAmount: 15000000, interval: 60000, imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.FmBUjKtpQmDHlMPLzjNRuwHaE8?pid=Api&P=0&h=220' },
+            { id: 'saham-retail', name: 'Saham Perusahaan Ritel', price: 300000000, passiveAmount: 8000000, interval: 40000, imgUrl: 'https://png.pngtree.com/png-clipart/20200710/original/pngtree-company-logo-vector-template-design-illustration-png-image_4140107.jpg' },
+            { id: 'saham-finance', name: 'Saham Perusahaan Jasa Keuangan', price: 5000000000, passiveAmount: 120000000, interval: 70000, imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.3ZWp16_KeD3QQVx_1n3tGQHaHa?pid=Api&P=0&h=220' },
+            { id: 'saham-pharma', name: 'Saham Perusahaan Farmasi', price: 1500000000, passiveAmount: 35000000, interval: 5500, imgUrl: 'https://media.istockphoto.com/id/1369175400/id/foto/produksi-produk-kecantikan-kosmetik-di-pabrik-farmasi.jpg?s=612x612&w=0&k=20&c=_FFggluVECAvVKFsWVwvF3h5qbLeKyOI3s8A2DK1MJI=' },
+            { id: 'saham-auto', name: 'Saham Perusahaan Manufaktur Otomotif', price: 900000000, passiveAmount: 80000000, interval: 60000, imgUrl: 'https://tse3.mm.bing.net/th/id/OIP.y9zz3PasIKRxThXtvu2U-QHaFj?pid=Api&P=0&h=220' },
+            { id: 'saham-fnb', name: 'Saham Perusahaan Makanan dan Minuman', price: 250000000, passiveAmount: 6000000, interval: 100000, imgUrl: 'https://cdn.idntimes.com/content-images/post/20221208/2020-01-17-3922a5b45d7845149baa13af64585620.jpg' },
+            { id: 'saham-ecommerce', name: 'Saham Perusahaan E-commerce', price: 3000000000, passiveAmount: 80000000, interval: 100000, imgUrl: 'https://tse3.mm.bing.net/th/id/OIP.EPNNa5m6VV5DCBj8HUumWwHaEO?pid=Api&P=0&h=220' },
+            { id: 'saham-renewables', name: 'Saham Perusahaan Energi Terbarukan', price: 8000000000, passiveAmount: 200000000, interval: 60000, imgUrl: 'https://zonaebt.com/wp-content/uploads/Daftar-Saham-Perusahaan-Energi-Terbarukan-di-Indonesia-1024x768-1.webp' },
+            { id: 'saham-telecom', name: 'Saham Perusahaan Telekomunikasi', price: 4000000000, passiveAmount: 500000000, interval: 40000, imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.8eCN9n9kxY1Cm-SRMQ-cPAHaEr?pid=Api&P=0&h=220' },
+            { id: 'saham-construction', name: 'Saham Perusahaan Konstruksi', price: 1200000000, passiveAmount: 70000000, interval: 120000, imgUrl: 'https://tse2.mm.bing.net/th/id/OIP.0odxh4BV0WnuaKH5VIR-MgHaFJ?pid=Api&P=0&h=220' },
+            { id: 'saham-super-tech', name: 'Saham Perusahaan Super Teknologi', price: 500000000000, passiveAmount: 80000000000, interval: 30000, imgUrl: 'https://berita.teknologi.id/images/?path=https://lh4.googleusercontent.com/fde9K2gHpS35heGwT4M5lojeNl4rqlAf5MVpMLEqj_lzhpZKIn9k0SlqLDMDGzlKEP3ySQwL_bSis6jDppeXl3SJJGmyEYYPqDqnjzoTw_a0ebcgBN4cFCELQ5Ve07OWE_psnvs9&size=720x400' },
+            { id: 'saham-global-finance', name: 'Saham Perusahaan Keuangan Global', price: 800000000000, passiveAmount: 300000000000, interval: 90000, imgUrl: 'https://www.harmony.co.id/wp-content/uploads/2019/10/Definisi-Fungsi-serta-Tujuan-Manajemen-Keuangan-Dalam-Suatu-Perusahaan-1536x960.jpg' },
+            { id: 'saham-mega-conglomerate', name: 'Saham Perusahaan NVIDIA', price: 1000000000000, passiveAmount: 850000000000, interval: 120000, imgUrl: 'https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/p1/10/2023/11/27/rsz_ilustrasi_chip_nvidia-6751716.jpg' }
+        ];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            const icon = type === 'success' ? '✔' : '❌';
+            notification.innerHTML = `<span class="notification-icon">${icon}</span><span>${message}</span>`;
+            
+            notificationContainer.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                notification.addEventListener('animationend', () => {
+                    notification.remove();
+                });
+            }, 3000);
+        }
+
+        function saveGameState() {
+            const allUnclaimedBonuses = unclaimedSahamBonuses.concat(otherUnclaimedBonuses);
+            const currentGameState = JSON.parse(localStorage.getItem('sultanGabutGameState')) || {};
+            
+            const gameState = {
+                money: money,
+                inventory: currentGameState.inventory || [],
+                ownedTargets: currentGameState.ownedTargets || [],
+                unclaimedBonuses: allUnclaimedBonuses,
+                passiveBonuses: passiveBonuses
+            };
+            localStorage.setItem('sultanGabutGameState', JSON.stringify(gameState));
+        }
+
+        function calculateOfflineBonuses() {
+            const now = Date.now();
+            passiveBonuses.forEach(bonus => {
+                if (bonus.id.startsWith('saham-') && bonus.lastClaim) {
+                    const timeElapsed = now - bonus.lastClaim;
+                    const intervalsPassed = Math.floor(timeElapsed / bonus.interval);
+                    
+                    if (intervalsPassed > 0) {
+                        for (let i = 0; i < intervalsPassed; i++) {
+                            unclaimedSahamBonuses.push({
+                                id: `saham-bonus-${bonus.id}-${Date.now() + i}`,
+                                name: `Pendapatan ${bonus.name}`,
+                                bonusAmount: bonus.amount,
+                                claimed: false,
+                                sourceId: bonus.id
+                            });
+                        }
+                        bonus.lastClaim = now;
+                    }
+                }
+            });
+            saveGameState();
+            renderUnclaimedSahamBonuses();
+        }
+
+        function loadGameState() {
+            const savedState = localStorage.getItem('sultanGabutGameState');
+            if (savedState) {
+                const gameState = JSON.parse(savedState);
+                money = gameState.money;
+                passiveBonuses = gameState.passiveBonuses;
+                
+                unclaimedSahamBonuses = gameState.unclaimedBonuses.filter(b => b.sourceId && b.sourceId.startsWith('saham-'));
+                otherUnclaimedBonuses = gameState.unclaimedBonuses.filter(b => !b.sourceId || !b.sourceId.startsWith('saham-'));
+
+                ownedStocks = passiveBonuses.filter(b => b.id.startsWith('saham-')).map(b => b.id);
+                
+                calculateOfflineBonuses();
+
+                updateDisplay();
+            } else {
+                showNotification('Tidak ada data game yang ditemukan. Kembali ke halaman utama.', 'danger');
+                setTimeout(() => {
+                    window.location.href = 'Simulasi Manajemen Uang.html';
+                }, 1500);
+            }
+        }
+
+        function updateDisplay() {
+            moneyDisplay.textContent = formatRupiah(money);
+            renderStocks();
+        }
+
+        function renderStocks() {
+            sahamListContainer.innerHTML = '';
+            stocks.forEach(stock => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+
+                const img = document.createElement('img');
+                img.src = stock.imgUrl;
+                img.alt = stock.name;
+                card.appendChild(img);
+                
+                const title = document.createElement('h3');
+                title.textContent = stock.name;
+                card.appendChild(title);
+
+                const pricePara = document.createElement('p');
+                pricePara.innerHTML = `Harga: <span class="price">${formatRupiah(stock.price)}</span>`;
+                card.appendChild(pricePara);
+                
+                const descPara = document.createElement('p');
+                descPara.className = 'description';
+                descPara.textContent = `Pendapatan: ${formatRupiah(stock.passiveAmount)} per ${stock.interval / 1000} detik`;
+                card.appendChild(descPara);
+
+                const button = document.createElement('button');
+                button.textContent = 'Beli Saham';
+                
+                if (money < stock.price || ownedStocks.includes(stock.id)) {
+                    button.disabled = true;
+                    if (ownedStocks.includes(stock.id)) {
+                        button.textContent = 'Sudah Terbeli';
+                    }
+                }
+                
+                button.addEventListener('click', () => buyStock(stock));
+                card.appendChild(button);
+                sahamListContainer.appendChild(card);
+            });
+        }
+
+        function buyStock(stock) {
+            if (money >= stock.price) {
+                money -= stock.price;
+                passiveBonuses.push({
+                    id: stock.id,
+                    name: stock.name,
+                    amount: stock.passiveAmount,
+                    interval: stock.interval,
+                    lastClaim: Date.now()
+                });
+                ownedStocks.push(stock.id);
+                saveGameState();
+                updateDisplay();
+                showNotification(`Berhasil membeli ${stock.name}! Anda akan mendapatkan passive income.`, 'success');
+            } else {
+                showNotification('Uangmu tidak cukup untuk membeli saham ini!', 'danger');
+            }
+        }
+
+        function renderUnclaimedSahamBonuses() {
+            unclaimedSahamList.innerHTML = '';
+            
+            if (unclaimedSahamBonuses.length === 0) {
+                emptySahamBonusMessage.style.display = 'block';
+                claimAllSahamBtn.style.display = 'none';
+            } else {
+                emptySahamBonusMessage.style.display = 'none';
+                claimAllSahamBtn.style.display = 'block';
+                unclaimedSahamBonuses.forEach(bonus => {
+                    const card = document.createElement('div');
+                    card.className = 'claim-card';
+                    card.innerHTML = `
+                        <div class="claim-info">
+                            <h4>${bonus.name}</h4>
+                            <p>Jumlah: <span class="price">${formatRupiah(bonus.bonusAmount)}</span></p>
+                        </div>
+                        <button onclick="claimSahamBonus('${bonus.id}')">Klaim</button>
+                    `;
+                    unclaimedSahamList.appendChild(card);
+                });
+            }
+        }
+
+        function claimSahamBonus(bonusId) {
+            const bonusIndex = unclaimedSahamBonuses.findIndex(b => b.id === bonusId);
+            if (bonusIndex !== -1) {
+                money += unclaimedSahamBonuses[bonusIndex].bonusAmount;
+                const bonusAmountFormatted = formatRupiah(unclaimedSahamBonuses[bonusIndex].bonusAmount);
+                unclaimedSahamBonuses.splice(bonusIndex, 1);
+                saveGameState();
+                updateDisplay();
+                renderUnclaimedSahamBonuses();
+                showNotification(`Berhasil mengklaim bonus sebesar ${bonusAmountFormatted}!`, 'success');
+            }
+        }
+
+        function claimAllSahamBonuses() {
+            if (unclaimedSahamBonuses.length > 0) {
+                let totalAmount = 0;
+                unclaimedSahamBonuses.forEach(bonus => {
+                    totalAmount += bonus.bonusAmount;
+                });
+                money += totalAmount;
+                unclaimedSahamBonuses = [];
+                saveGameState();
+                updateDisplay();
+                renderUnclaimedSahamBonuses();
+                showNotification(`Berhasil mengklaim total ${formatRupiah(totalAmount)}!`, 'success');
+            }
+        }
+
+        claimSahamBtn.addEventListener('click', () => {
+            sahamModalOverlay.classList.add('show');
+            renderUnclaimedSahamBonuses();
+        });
+
+        closeSahamModalBtn.addEventListener('click', () => {
+            sahamModalOverlay.classList.remove('show');
+        });
+
+        claimAllSahamBtn.addEventListener('click', claimAllSahamBonuses);
+
+        document.addEventListener('DOMContentLoaded', loadGameState);
+
+        window.addEventListener('beforeunload', saveGameState);
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uji Kecepatan Mengetik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Tambahkan padding di bagian atas untuk memberi ruang pada tombol back */
+            padding: 60px 20px 20px; 
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+             position: relative;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1a73e8;
+            font-weight: 700;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .timer-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .timer-options button {
+            background-color: #e3f2fd;
+            color: #1a73e8;
+            border: 2px solid #1a73e8;
+            padding: 8px 15px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .timer-options button.active, .timer-options button:hover {
+            background-color: #1a73e8;
+            color: #fff;
+        }
+
+        .typing-area {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.5em;
+            line-height: 1.8;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+            cursor: text; /* Menambahkan kursor teks */
+        }
+        
+        .typing-area.active {
+            border: 1px solid #1a73e8;
+            box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+        }
+
+        .typing-area .correct {
+            color: #4CAF50;
+        }
+
+        .typing-area .incorrect {
+            color: #f44336;
+        }
+
+        .typing-area .current {
+            background-color: #bbdefb;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+
+        .typing-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: default;
+        }
+
+        .results {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        #timer-display {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #1a73e8;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+        }
+          
+        .header {
+             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            background-color: #f0f2f5;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #1a73e8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: #1565c0;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        
+        .modal h2 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .results {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+            .result-box {
+                flex: 1;
+                min-width: unset;
+                padding: 10px;
+            }
+            .result-value {
+                font-size: 1.8em;
+            }
+            .result-label {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman sebelumnya">←</a>
+    </div>
+    <div class="container">
+        <h1>Tes Kecepatan Mengetik</h1>
+        <p>Ketik kalimat di bawah ini secepat dan seakurat mungkin. Pilih durasi dan tekan "Mulai"!</p>
+        
+        <div class="timer-options">
+            <button class="timer-btn active" data-time="15">15 dtk</button>
+            <button class="timer-btn" data-time="30">30 dtk</button>
+            <button class="timer-btn" data-time="60">60 dtk</button>
+        </div>
+        
+        <div id="timer-display">00:00</div>
+        
+        <div class="typing-area">
+            <span id="text-to-type"></span>
+            <input type="text" class="typing-input" id="typing-input" autofocus>
+        </div>
+        
+        <div class="results">
+            <div class="result-box">
+                <div class="result-value" id="wpm">0</div>
+                <div class="result-label">WPM</div>
+            </div>
+            <div class="result-box">
+                <div class="result-value" id="accuracy">0%</div>
+                <div class="result-label">Akurasi</div>
+            </div>
+            <div class="result-box">
+                <div class="result-value" id="errors">0</div>
+                <div class="result-label">Kesalahan</div>
+            </div>
+        </div>
+
+        <button id="start-btn">Mulai</button>
+    </div>
+    
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Waktu Habis!</h2>
+            <p id="modal-message"></p>
+            <button id="restart-btn">Ulangi Lagi</button>
+        </div>
+    </div>
+<script>
+    const texts = [
+        "Ketika hujan deras turun, aroma tanah yang basah memenuhi udara, menciptakan suasana yang menenangkan.",
+        "Teknologi telah mengubah cara kita berinteraksi dan bekerja, membuka pintu untuk inovasi tanpa batas.",
+        "Memasak adalah seni yang memadukan kreativitas dengan presisi, menghasilkan hidangan lezat.",
+        "Sistem tata surya kita memiliki delapan planet yang mengelilingi matahari dalam orbit elips.",
+        "Kopi hitam tanpa gula adalah minuman favorit banyak orang di seluruh dunia."
+    ];
+
+    const textToTypeEl = document.getElementById('text-to-type');
+    const typingInput = document.getElementById('typing-input');
+    const wpmEl = document.getElementById('wpm');
+    const accuracyEl = document.getElementById('accuracy');
+    const errorsEl = document.getElementById('errors');
+    const startBtn = document.getElementById('start-btn');
+    const timerBtns = document.querySelectorAll('.timer-btn');
+    const timerDisplay = document.getElementById('timer-display');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const restartBtn = document.getElementById('restart-btn');
+    const typingArea = document.querySelector('.typing-area');
+
+    let originalText = '';
+    let timer = null;
+    let timeLeft = 0;
+    let selectedTime = 15;
+    let totalCorrectChars = 0;
+
+    function initializeTest() {
+        originalText = '';
+        typingInput.value = '';
+        typingInput.disabled = true;
+        wpmEl.textContent = '0';
+        accuracyEl.textContent = '0%';
+        errorsEl.textContent = '0';
+        totalCorrectChars = 0;
+        timerDisplay.textContent = `${String(selectedTime).padStart(2, '0')}:00`;
+        startBtn.style.display = 'block';
+        textToTypeEl.innerHTML = 'Pilih durasi, lalu klik Mulai!';
+        typingArea.classList.remove('active');
+    }
+
+    function startTest() {
+        document.querySelector('.timer-options').style.display = 'none';
+
+        originalText = texts[Math.floor(Math.random() * texts.length)];
+        const charArray = originalText.split('');
+        textToTypeEl.innerHTML = charArray.map((char, index) => `<span id="char-${index}">${char}</span>`).join('');
+        
+        typingInput.value = '';
+        typingInput.disabled = false;
+        typingInput.focus();
+        
+        wpmEl.textContent = '0';
+        accuracyEl.textContent = '0%';
+        errorsEl.textContent = '0';
+        totalCorrectChars = 0;
+        
+        clearInterval(timer);
+        timeLeft = selectedTime;
+        
+        timer = setInterval(() => {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            if (timeLeft <= 0) {
+                endTest(false);
+            }
+        }, 1000);
+
+        startBtn.style.display = 'none';
+        typingArea.classList.add('active');
+        updateStats();
+    }
+
+    function endTest(completed = false) {
+        clearInterval(timer);
+        typingInput.disabled = true;
+        typingArea.classList.remove('active');
+        
+        const typedText = typingInput.value;
+        const accuracy = typedText.length > 0 ? Math.round((totalCorrectChars / typedText.length) * 100) : 0;
+        const wpm = wpmEl.textContent;
+        
+        let message = "";
+        let title = "Waktu Habis!";
+
+        if (completed) {
+            if (accuracy === 100) {
+                title = "Wah, keren! Tangan dewa!";
+                message = `Anda menyelesaikan tes dengan sempurna dalam waktu ${selectedTime - timeLeft} detik.`;
+            } else {
+                title = "Sudah selesai lho!";
+                message = `Anda menyelesaikan tes. WPM: ${wpm}, Akurasi: ${accuracy}%.`;
+            }
+        } else {
+            const progress = typedText.length / originalText.length;
+            if (progress < 0.3) {
+                title = "Baru juga mulai! 🙄";
+                message = `WPM Anda: ${wpm}, Akurasi: ${accuracy}%. Coba lagi ya!`;
+            } else if (progress >= 0.7) {
+                title = "Padahal sedikit lagi lho!";
+                message = `WPM Anda: ${wpm}, Akurasi: ${accuracy}%. Hampir selesai!`;
+            } else {
+                title = "Waktu Habis!";
+                message = `WPM Anda: ${wpm}, Akurasi: ${accuracy}%. Jangan menyerah, coba lagi!`;
+            }
+        }
+
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalOverlay.classList.add('show');
+    }
+
+    function updateStats() {
+        const typedText = typingInput.value;
+        const originalChars = originalText.split('');
+        const spans = textToTypeEl.querySelectorAll('span');
+
+        totalCorrectChars = 0;
+        let errorCount = 0;
+
+        for (let i = 0; i < spans.length; i++) {
+            const charSpan = spans[i];
+            const typedChar = typedText[i];
+            const originalChar = originalChars[i];
+
+            charSpan.classList.remove('correct', 'incorrect', 'current');
+            
+            if (i < typedText.length) {
+                if (typedChar === originalChar) {
+                    charSpan.classList.add('correct');
+                    totalCorrectChars++;
+                } else {
+                    charSpan.classList.add('incorrect');
+                    errorCount++;
+                }
+            }
+        }
+        
+        const currentCharIndex = typedText.length;
+        if (currentCharIndex < spans.length) {
+            spans[currentCharIndex].classList.add('current');
+        }
+
+        const timeElapsed = selectedTime - timeLeft;
+        const wordCount = (totalCorrectChars / 5);
+        const wpm = timeElapsed > 0 ? Math.round((wordCount / timeElapsed) * 60) : 0;
+        wpmEl.textContent = isFinite(wpm) ? wpm : 0;
+
+        const accuracy = typedText.length > 0 ? Math.round((totalCorrectChars / typedText.length) * 100) : 0;
+        accuracyEl.textContent = `${accuracy}%`;
+
+        errorsEl.textContent = errorCount;
+
+        if (typedText.length === originalText.length) {
+            endTest(true);
+        }
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', startTest);
+    typingInput.addEventListener('input', updateStats);
+    restartBtn.addEventListener('click', () => {
+        modalOverlay.classList.remove('show');
+        document.querySelector('.timer-options').style.display = 'flex';
+        initializeTest();
+    });
+    
+    timerBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            timerBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedTime = parseInt(btn.dataset.time, 10);
+            initializeTest();
+        });
+    });
+
+    // Inisialisasi awal
+    initializeTest();
+</script>
+</body>
+</html>

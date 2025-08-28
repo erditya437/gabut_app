@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transliterasi Nama Pribadi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a202c;
+            --muted: #718096;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #06b6d4;
+            --border: #e2e8f0;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--muted);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-primary);
+        }
+
+        .app {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: clamp(24px, 5vw, 36px);
+            margin: 0 0 4px;
+            font-weight: 700;
+        }
+
+        p.sub {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .form-control {
+            margin-bottom: 16px;
+        }
+
+        .btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            flex: 1;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .results {
+            margin-top: 24px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: relative;
+        }
+        
+        .result-card.show {
+            animation: fadeInAndUp 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeInAndUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lang-title {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .name {
+            font-size: 20px; /* Ukuran font awal */
+            font-weight: 700;
+            overflow-wrap: break-word; /* Memastikan kata yang sangat panjang akan pecah */
+            word-break: break-word; /* Alternatif untuk browser yang berbeda */
+            font-size: clamp(20px, 3.5vw, 36px); /* Mengatur ukuran font yang mengecil */
+        }
+
+        .roman {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .footer {
+            margin-top: 32px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            padding: 5px;
+        }
+
+        .copy-btn:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast {
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(100%);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent-secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman utama">←</a>
+    </div>
+    <div class="container">
+        <div class="app">
+            <h1>Transliterasi Nama</h1>
+            <p class="sub">Ubah nama Anda ke Tiongkok • Jepang • Vietnam • Thailand</p>
+
+            <div class="form-control">
+                <label for="nameInput">Nama Anda:</label>
+                <input type="text" id="nameInput" placeholder="Contoh: Erditya" />
+            </div>
+
+            <div class="form-control">
+                <label for="langSelect">Pilih Bahasa:</label>
+                <select id="langSelect">
+                    <option value="">-- Pilih --</option>
+                    <option value="jp">Jepang (日本語)</option>
+                    <option value="cn">Tiongkok (中文)</option>
+                    <option value="vi">Vietnam (Tiếng Việt)</option>
+                    <option value="th">Thailand (ไทย)</option>
+                </select>
+            </div>
+
+            <div class="form-control hidden" id="subLangContainer">
+                <label for="subLangSelect">Pilih Format:</label>
+                <select id="subLangSelect"></select>
+            </div>
+
+            <div class="btns">
+                <button id="translateBtn">
+                    Transliterasi
+                </button>
+            </div>
+
+            <div class="results" id="results" aria-live="polite"></div>
+
+            <div class="footer">
+                Transliterasi ini bersifat fonetik dan tidak menjamin makna atau akurasi budaya.
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-container"></div>
+
+    <script>
+        const transliterationData = {
+            jp: {
+                katakana: {
+                    mapping: {
+                        'a': 'ア', 'i': 'イ', 'u': 'ウ', 'e': 'エ', 'o': 'オ',
+                        'ka': 'カ', 'ki': 'キ', 'ku': 'ク', 'ke': 'ケ', 'ko': 'コ', 'kyu': 'キュ', 'kya': 'キャ', 'kyo': 'キョ',
+                        'sa': 'サ', 'shi': 'シ', 'su': 'ス', 'se': 'セ', 'so': 'ソ', 'sha': 'シャ', 'shu': 'シュ', 'sho': 'ショ',
+                        'ta': 'タ', 'chi': 'チ', 'tsu': 'ツ', 'te': 'テ', 'to': 'ト', 'cha': 'チャ', 'chu': 'チュ', 'cho': 'チョ',
+                        'na': 'ナ', 'ni': 'ニ', 'nu': 'ヌ', 'ne': 'ネ', 'no': 'ノ',
+                        'ha': 'ハ', 'hi': 'ヒ', 'fu': 'フ', 'he': 'ヘ', 'ho': 'ホ', 'hya': 'ヒャ', 'hyu': 'ヒュ', 'hyo': 'ヒョ',
+                        'ma': 'マ', 'mi': 'ミ', 'mu': 'ム', 'me': 'メ', 'mo': 'モ', 'mya': 'ミャ', 'myu': 'ミュ', 'myo': 'ミョ',
+                        'ya': 'ヤ', 'yu': 'ユ', 'yo': 'ヨ',
+                        'ra': 'ラ', 'ri': 'リ', 'ru': 'ル', 're': 'レ', 'ro': 'ロ', 'rya': 'リャ', 'ryu': 'リュ', 'ryo': 'リョ',
+                        'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン',
+                        'ga': 'ガ', 'gi': 'ギ', 'gu': 'グ', 'ge': 'ゲ', 'go': 'ゴ', 'gya': 'ギャ', 'gyu': 'ギュ', 'gyo': 'ギョ',
+                        'za': 'ザ', 'ji': 'ジ', 'zu': 'ズ', 'ze': 'ゼ', 'zo': 'ゾ', 'ja': 'ジャ', 'ju': 'ジュ', 'jo': 'ジョ',
+                        'da': 'ダ', 'de': 'デ', 'do': 'ド',
+                        'ba': 'バ', 'bi': 'ビ', 'bu': 'ブ', 'be': 'ベ', 'bo': 'ボ', 'bya': 'ビャ', 'byu': 'ビュ', 'byo': 'ビョ',
+                        'pa': 'パ', 'pi': 'ピ', 'pu': 'プ', 'pe': 'ペ', 'po': 'ポ', 'pya': 'ピャ', 'pyu': 'ピュ', 'pyo': 'ピョ',
+                        'fa': 'ファ', 'fi': 'フィ', 'fe': 'フェ', 'fo': 'フォ',
+                        'tsa': 'ツァ', 'tsi': 'ツィ', 'tse': 'ツェ', 'tso': 'ツォ',
+                        'va': 'ヴァ', 'vi': 'ヴィ', 'vu': 'ヴ', 've': 'ヴェ', 'vo': 'ヴォ',
+                        'ti': 'ティ', 'di': 'ディ', 'tu': 'トゥ', 'du': 'ドゥ',
+                        'jya': 'ジャ', 'jyu': 'ジュ', 'jyo': 'ジョ',
+                        'er': 'アー', 'di': 'ディ', 'tya': 'ティヤ', 'dit': 'ディット', 'ya': 'ヤ'
+                    },
+                    label: 'Katakana'
+                },
+                kanji: {
+                    mapping: {
+                        'er': '恵', 'di': '理', 'tya': '茶', 'dit': '迪', 'ya': '弥'
+                    },
+                    label: 'Kanji'
+                }
+            },
+            cn: {
+                pinyin: {
+                    mapping: {
+                        'a': 'ā', 'b': 'bō', 'c': 'cí', 'd': 'dé', 'e': 'è', 'f': 'fú',
+                        'g': 'gé', 'h': 'hè', 'i': 'yī', 'j': 'jié', 'k': 'kè', 'l': 'lāi',
+                        'm': 'mǔ', 'n': 'nuò', 'o': 'ó', 'p': 'pī', 'q': 'qí', 'r': 'èr',
+                        's': 'sī', 't': 'tè', 'u': 'wū', 'v': 'wēi', 'w': 'wēi', 'x': 'xī',
+                        'y': 'yī', 'z': 'zé',
+                        'er': 'er', 'di': 'dí', 'tya': 'tiyà', 'ya': 'yà'
+                    },
+                    label: 'Pinyin'
+                },
+                hanzi: {
+                    mapping: {
+                        'a': '阿', 'b': '博', 'c': '次', 'd': '德', 'e': '伊', 'f': '夫',
+                        'g': '格', 'h': '赫', 'i': '伊', 'j': '杰', 'k': '克', 'l': '莱',
+                        'm': '姆', 'n': '诺', 'o': '奥', 'p': '皮', 'q': '奇', 'r': '尔',
+                        's': '斯', 't': '特', 'u': '乌', 'v': '韦', 'w': '威', 'x': '西',
+                        'y': '伊', 'z': '泽',
+                        'er': '尔', 'di': '迪', 'tya': '提亚', 'ya': '雅'
+                    },
+                    label: 'Hanzi (Sederhana)'
+                }
+            },
+            // Menambahkan data untuk Vietnam
+            vi: {
+                quocngu: {
+                    mapping: {
+                        'a': 'a', 'e': 'e', 'i': 'i', 'o': 'o', 'u': 'u',
+                        'b': 'b', 'c': 'k', 'd': 'đ', 'g': 'g', 'h': 'h', 'l': 'l', 'm': 'm', 'n': 'n',
+                        'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'v': 'v', 'x': 'x', 'y': 'y',
+                        'er': 'ơ', 'di': 'đi', 'tya': 'tia', 'dit': 'đít', 'ya': 'ya'
+                    },
+                    label: 'Quốc ngữ'
+                }
+            },
+            // Menambahkan data untuk Thailand
+            th: {
+                thai: {
+                    mapping: {
+                        'a': 'อา', 'e': 'เอ', 'i': 'ไอ', 'o': 'โอ', 'u': 'ยู',
+                        'b': 'บ', 'c': 'ค', 'd': 'ด', 'g': 'ก', 'h': 'ฮ', 'l': 'ล', 'm': 'ม', 'n': 'น',
+                        'p': 'ป', 'q': 'ค', 'r': 'ร', 's': 'ส', 't': 'ท', 'v': 'ว', 'x': 'ซ', 'y': 'ย',
+                        'er': 'เออร์', 'di': 'ดิ', 'tya': 'ติยา', 'dit': 'ดิต', 'ya': 'ยา'
+                    },
+                    label: 'Aksara Thai'
+                }
+            }
+        };
+
+        function transliterate(name, lang, subLang) {
+            if (!name) return { native: '', roman: '' };
+            name = name.toLowerCase();
+
+            // Cek apakah data untuk bahasa yang dipilih ada
+            if (!transliterationData[lang] || !transliterationData[lang][subLang]) {
+                return { native: 'Data transliterasi tidak tersedia.', roman: '' };
+            }
+
+            const mapping = transliterationData[lang][subLang].mapping;
+            const sortedKeys = Object.keys(mapping).sort((a, b) => b.length - a.length);
+            
+            let nativeResult = '';
+            let romanResult = '';
+            let remainingName = name;
+
+            while (remainingName.length > 0) {
+                let matched = false;
+                for (const key of sortedKeys) {
+                    if (remainingName.startsWith(key)) {
+                        nativeResult += mapping[key];
+                        // Menentukan teks roman yang akan ditampilkan
+                        if (lang === 'cn' && subLang === 'hanzi') {
+                            const pinyinMapping = transliterationData['cn']['pinyin'].mapping;
+                            romanResult += pinyinMapping[key] + ' ';
+                        } else {
+                            romanResult += key + ' ';
+                        }
+                        remainingName = remainingName.substring(key.length);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    // Jika tidak ada karakter yang cocok, abaikan karakter pertama
+                    remainingName = remainingName.substring(1);
+                }
+            }
+            // Hapus spasi ekstra di akhir
+            romanResult = romanResult.trim();
+            return { native: nativeResult, roman: romanResult };
+        }
+        
+        function showToast(message) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => {
+                    toast.remove();
+                });
+            }, 3000);
+        }
+
+        function copyResult(event) {
+            const resultElement = event.target.closest('.card').querySelector('.name');
+            const textToCopy = resultElement.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('Teks berhasil disalin!');
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+
+        function renderResults(name, lang, subLang) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            const langNames = { 
+                'jp': 'Jepang', 
+                'cn': 'Tiongkok', 
+                'vi': 'Vietnam', 
+                'th': 'Thailand' 
+            };
+            
+            // Tambahkan sub-bahasa jika ada
+            let subLangName = '';
+            if (lang === 'jp') {
+                subLangName = subLang === 'katakana' ? 'Katakana' : 'Kanji';
+            } else if (lang === 'cn') {
+                subLangName = subLang === 'pinyin' ? 'Pinyin' : 'Hanzi (Sederhana)';
+            } else if (lang === 'vi') {
+                subLangName = 'Quốc ngữ';
+            } else if (lang === 'th') {
+                subLangName = 'Aksara Thai';
+            }
+
+            const { native, roman } = transliterate(name, lang, subLang);
+            
+            const card = document.createElement('div');
+            card.className = 'card result-card';
+            
+            const title = `${langNames[lang]}${subLangName ? ` (${subLangName})` : ''}`;
+
+            card.innerHTML = `
+                <div class="lang-title">${title}</div>
+                <div class="name">${native || 'Nama tidak ditemukan'}</div>
+                ${roman ? `<div class="roman">${roman}</div>` : ''}
+                <button class="copy-btn" aria-label="Salin hasil"><span aria-hidden="true">Copy</span></button>
+            `;
+            
+            resultsDiv.appendChild(card);
+            setTimeout(() => {
+                card.classList.add('show');
+            }, 50);
+
+            card.querySelector('.copy-btn').addEventListener('click', copyResult);
+        }
+
+        const langSelect = document.getElementById('langSelect');
+        const subLangContainer = document.getElementById('subLangContainer');
+        const subLangSelect = document.getElementById('subLangSelect');
+        const translateBtn = document.getElementById('translateBtn');
+        const nameInput = document.getElementById('nameInput');
+
+        langSelect.addEventListener('change', () => {
+            const selectedLang = langSelect.value;
+            subLangSelect.innerHTML = '';
+            
+            if (selectedLang === 'jp') {
+                subLangContainer.classList.remove('hidden');
+                subLangSelect.innerHTML = `
+                    <option value="katakana">Katakana</option>
+                    <option value="kanji">Kanji</option>
+                `;
+            } else if (selectedLang === 'cn') {
+                subLangContainer.classList.remove('hidden');
+                subLangSelect.innerHTML = `
+                    <option value="pinyin">Pinyin</option>
+                    <option value="hanzi">Hanzi</option>
+                `;
+            } else {
+                subLangContainer.classList.add('hidden');
+            }
+        });
+
+        translateBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const lang = langSelect.value;
+            let subLang = '';
+
+            if (lang === 'jp' || lang === 'cn') {
+                subLang = subLangSelect.value;
+            } else if (lang === 'vi') {
+                subLang = 'quocngu'; // Tentukan subLang untuk Vietnam
+            } else if (lang === 'th') {
+                subLang = 'thai'; // Tentukan subLang untuk Thailand
+            }
+
+            if (!name || !lang) {
+                showToast('Silakan masukkan nama dan pilih bahasa.');
+                return;
+            }
+            
+            translateBtn.disabled = true;
+            const originalText = translateBtn.innerHTML;
+            translateBtn.innerHTML = '<span class="spinner"></span>';
+
+            setTimeout(() => {
+                renderResults(name, lang, subLang);
+                translateBtn.innerHTML = originalText;
+                translateBtn.disabled = false;
+            }, 1000); 
+        });
+    </script>
+</body>
+</html>

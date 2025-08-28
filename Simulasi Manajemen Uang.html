@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sultan Gabut: Simulasi Manajemen Uang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #4CAF50;
+            --danger-color: #f44336;
+            --bg-color: #f0f2f5;
+            --card-bg: #fff;
+            --text-color: #333;
+            --light-blue: #e3f2fd;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            padding-top: 60px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+        }
+        
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-size: 1.3em;
+        }
+        
+        p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .info-box {
+            background: #ffffff;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.247);
+        }
+        
+        .info-box span {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--success-color);
+            transition: font-size 0.3s ease; /* Transisi untuk perubahan ukuran font */
+        }
+
+        .info-box span.small-text {
+            font-size: 1.3em;
+        }
+
+        .info-box span.extra-small-text {
+            font-size: 1em;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        #buy-items, #inventory-items, #target-items, #bonus-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .item-card {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1 1 150px;
+            align-items: flex-start;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 1em;
+            color: var(--text-color);
+            text-align: left;
+            width: 100%;
+        }
+        
+        .item-card p {
+            margin: 0 0 10px 0;
+            font-size: 0.8em;
+            color: #777;
+            text-align: left;
+        }
+
+        .item-card .price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .item-card.owned {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .item-card.target {
+            background: #ffecb3;
+            border-color: #ffe082;
+        }
+        
+        .item-card button {
+            width: 100%;
+            padding: 8px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            font-size: 0.9em;
+        }
+        
+        .item-card button.sell {
+            background: var(--danger-color);
+        }
+        
+        .item-card button.profit {
+            background: var(--success-color);
+        }
+
+        .item-card button.loss {
+            background: var(--danger-color);
+        }
+        
+        .item-card button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .item-card button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #reset-btn {
+            background: #bd1414;
+            color: white;
+            border: 2px solid #ffffff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #reset-btn:hover {
+            background: #640d0d;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8) translateY(-50px);
+            transition: transform 0.3s ease;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: #1565c0;
+        }
+
+        .inventory-title {
+            color: rgb(74, 74, 74);
+        }
+
+        .note {
+            font-weight: bold;
+            color: #a72424;
+        }
+
+        #empty-inventory-message, #empty-bonus-message {
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        #scroll-to-inventory-btn, #show-bonus-btn {
+            position: fixed;
+            bottom: 20px;
+            z-index: 99;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #scroll-to-inventory-btn {
+            right: 20px;
+        }
+
+        #saham-btn {
+            position: fixed;
+            bottom: 20px;
+            z-index: 99;
+            background: #50c90f;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #saham-btn {
+             right: 20px;
+             margin-bottom: 60px;
+
+        }
+
+        #show-bonus-btn {
+            left: 20px;
+            position: fixed;
+        }
+
+        #scroll-to-inventory-btn:hover, #show-bonus-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .modal-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .modal-content button#continue-btn {
+            background-color: #f44336;
+            margin-right: 10px;
+        }
+
+        .modal-content button#finish-btn,
+        .modal-content button#restart-btn {
+            background-color: var(--success-color);
+        }
+
+        #inventory-items, #bonus-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            position: relative;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #bonus-list .item-card button {
+            background-color: #2aae2e;
+        }
+
+        .item-image {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+        }
+
+        .bonus-count {
+        background-color: var(--danger-color);
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 0.8em;
+        font-weight: bold;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        display: none; /* Sembunyikan secara default */
+    }
+
+
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .items-grid, #buy-items, #target-items,#inventory-items {
+                grid-template-columns: 1fr 1fr;
+                display: grid;
+                gap: 10px;
+            }
+            
+            /* Tambahkan aturan ini */
+    #empty-inventory-message {
+        grid-column: 1 / -1;
+    }
+
+            .item-card {
+                flex: unset;
+                font-size: 12px;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            .info-box span {
+                font-size: 1.5em;
+            }
+            
+            .header {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+            }
+            #scroll-to-inventory-btn, #show-bonus-btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            #show-bonus-btn {
+                left: 10px;
+            }
+            #scroll-to-inventory-btn {
+                right: 10px;
+            }
+
+            .item-image {
+                max-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman sebelumnya">←</a>
+    </div>
+  <div class="container">
+    <h1>beli! beli! beli!</h1>
+    <p>Tujuanmu: Jadilah kaya raya dengan jual-beli barang! Mulai dengan modal Rp100.000, beli dan jual barang untuk mengumpulkan uang sebanyak mungkin, lalu beli semua item target!</p>
+    <p class="note">harga jual bisa naik turun.</p>
+
+    <div class="info-box">
+        <p>Saldo Uangmu:</p>
+        <span id="money-display">Rp100.000</span>
+    </div>
+
+    <h2 class="inventory-title">Inventaris Anda</h2>
+    <div id="inventory-items">
+        <p id="empty-inventory-message" style="display:none;">Inventaris kosong. Ayo beli sesuatu!</p>
+    </div>
+
+    <hr>
+
+    <h2>Barang untuk Dibeli</h2>
+    <div id="buy-items" class="items-grid">
+    </div>
+
+    <hr>
+    
+    <hr>
+
+    <h2>Barang Target (Harus Dibeli Semua!)</h2>
+    <div id="target-items" class="items-grid">
+    </div>
+
+    <button id="reset-btn">Mulai Ulang</button>
+</div>
+
+<button id="show-bonus-btn">
+    Lihat Bonus
+    <span class="bonus-count"></span>
+</button>
+<button id="saham-btn">Saham</button>
+<button id="scroll-to-inventory-btn">
+    Lihat Inventaris
+</button>
+    
+   <div id="win-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" id="close-win-modal-btn">&times;</span>
+        <h2 id="modal-title"></h2>
+        <p id="modal-message"></p>
+        <div class="modal-footer">
+            </div>
+    </div>
+</div>
+
+<div id="bonus-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" id="close-bonus-modal-btn">&times;</span>
+        <h2>Bonus yang Belum Diklaim</h2>
+        <div id="bonus-list" class="item-list">
+            <p id="empty-bonus-message" style="display:none;">Tidak ada bonus yang bisa diklaim saat ini.</p>
+        </div>
+    </div>
+</div>
+<script>
+    // Awal kode Javascript
+    const moneyDisplay = document.getElementById('money-display');
+    const buyItemsContainer = document.getElementById('buy-items');
+    const inventoryItemsContainer = document.getElementById('inventory-items');
+    const targetItemsContainer = document.getElementById('target-items');
+    const emptyInventoryMessage = document.getElementById('empty-inventory-message');
+    const emptyBonusMessage = document.getElementById('empty-bonus-message');
+    const winModalOverlay = document.getElementById('win-modal-overlay');
+    const bonusModalOverlay = document.getElementById('bonus-modal-overlay');
+    const closeWinModalBtn = document.getElementById('close-win-modal-btn');
+    const closeBonusModalBtn = document.getElementById('close-bonus-modal-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const scrollToInventoryBtn = document.getElementById('scroll-to-inventory-btn');
+    const showBonusBtn = document.getElementById('show-bonus-btn');
+    const sahamBtn = document.getElementById('saham-btn');
+
+    let money;
+    let inventory;
+    let ownedTargets;
+    let unclaimedBonuses; // Bonus non-saham
+    let passiveBonuses;
+    let unclaimedSahamBonuses = []; // Tambahan untuk menyimpan bonus saham secara terpisah
+
+    const items = {
+        buyable: [
+            { id: 'permen', name: 'Permen Karet', price: 1000, description: 'Camilan manis, harga jual bisa naik sedikit.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-l0EXTk6TYv3HTywre0w6G3WxB6rib2oDeWZgPdF4qZ-n4mh-y1LKmh71X9sF' },
+            { id: 'mie', name: 'Mie Instan', price: 2500, description: 'Makanan sejuta umat, fluktuasi harga kecil.', imgUrl: 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcQbLm1tUh7U7DMPnP-tWyiIflWqlinudE-R6Lw1Erd04x-AuAEmvTYSMgSEy7Ep3vrRxO8htgt7aROzGGnwCXUo39RbJhAYacS4bxRObVgBdk-wHaI' },
+            { id: 'esteh', name: 'Es Teh Jumbo', price: 5000, description: 'Harga bervariasi tergantung cuaca.', imgUrl: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRMYrbUrZGpSG6kQPnHZ3hvcP40Ru8D0DtQMtIdfFN9IR0-FZcX87FcFQXWP6g7' },
+            { id: 'pulpen', name: 'Pulpen', price: 10000, description: 'Sangat dibutuhkan di kantor, untung lumayan.', imgUrl: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ2D06wPegq7nR1_P258o3UFvIOy18Dta3f9kH3sLm_iP8TW7JtTT2fkF6u3bhy' },
+            { id: 'kaos', name: 'Kaus Distro', price: 25000, description: 'Tren fashion, untung besar jika laku.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQu3Fu1pBPg2h22-XhhpyW-WYQ-W7EPH7n-J__QkjESS5T0qcII33_-sJiFjAp2' },
+            { id: 'novel', name: 'Buku Novel Bekas', price: 20000, description: 'Harga jual bisa sangat naik atau turun.', imgUrl: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ00hmyh9jT0GuHojgA_-WD1W4sCdws9Ix76EBocjlFmbBRWtI6d8UaCGAysHTY' },
+            { id: 'warung', name: 'Warung ', price: 200000000, description: 'Dapatkan Pendapatan', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.049GGwMYSe9DdqPE1fOutgHaFj?pid=Api&P=0&h=220' },
+            { id: 'tiketbioskop', name: 'Tiket Bioskop', price: 50000, description: 'Harga stabil, untung terjamin.', imgUrl: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTUbKf6O6B6Zbs8mGBCJyEuc-FLT1muZgYWktSrIqwf9m0MhC4nkfGlw67QQrBF' },
+            { id: 'powerbank', name: 'Power Bank', price: 75000, description: 'Barang elektronik, keuntungan besar.', imgUrl: 'https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcTVeNJtQ-ZKHgPZcNSUnZicEJZBu1u72-q7T8i-QZViwPi2onVGz6220bGI7v5xl6TMuslFY4hhfXzZDtHuNElgeCIha_meG7JCO9tQ0LSxB0WhicM' },
+            { id: 'vouchergame', name: 'Voucher Game', price: 100000, description: 'Untung stabil, modal besar.', imgUrl: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSGbgnMyyBCkcdPt1_kklpgwDGhFi33_vqADvDV2W3fZEDgBdKC0_mbXY_7xsbR' },
+            { id: 'ruko', name: 'Ruko ', price: 950000000, description: 'Dapatkan Pendapatan besar', imgUrl: 'https://tse3.mm.bing.net/th/id/OIP.egdSDhMEqixTa-qkvX4fTwAAAA?pid=Api&P=0&h=220' },
+            { id: 'headset', name: 'Headset Gaming', price: 150000, description: 'Aksesori gaming, harga jual bervariasi.', imgUrl: 'https://www.binarytides.com/blog/wp-content/uploads/2020/02/bengoo-g9000-stereo-gaming-headset.jpg' },
+            { id: 'hdd', name: 'Hard Disk Eksternal', price: 400000, description: 'Penyimpanan data, harga cenderung stabil.', imgUrl: 'https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcQVqAy2rwq9yv8fYWITjwTfpX_2v8xI1cwBRRfEZwSeiUKVlZxzwwr1F_XE6Os7lsoynCh-kqM1dlK4fFe8MHRo9JMZEE50E3FGiWMBnJ7sqMn3C58' },
+            { id: 'smartwatch', name: 'Smartwatch', price: 800000, description: 'Untung tinggi, butuh modal besar.', imgUrl: 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSgqj3tQTyKke5p6_J9XrNS228qeKiITR6Kk0zrCqeA37bkuzV8UI5wN6TJPB1FN7GarWAW_AkLPeaSDb1_x2DfDn8CRN9ZpTDbywFMGBPhWrEfksM' },
+            { id: 'kamera', name: 'Kamera Mirrorless', price: 1500000, description: 'Cocok untuk fotografer, keuntungan besar.', imgUrl: 'https://m.dpreview.com/files/p/articles/8340562327/sony_a6700.jpeg' },
+            { id: 'sepeda', name: 'Sepeda Lipat', price: 3000000, description: 'Barang mahal, untung lumayan.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpull6NaU2f-IpXwsABlad25HfReG2dY3t0k0FFBQDx_wCisv-jv_eGPxXL8kp' },
+            { id: 'konsol', name: 'Konsol Game', price: 5000000, description: 'Sangat diminati, untung besar.', imgUrl: 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSaOvq7bjxPPdp1xh8zbuJYIlwQ1sFhHcmv_r4WSq23WxzD6eMQpjXKDlFxOuEGBPbbd3H38IJn-Iq2_DRNakc7uVatUJwb-VRKNa5f9-nKQvXZQeM' },
+            { id: 'motor_listrik', name: 'Motor Listrik', price: 15000000, description: 'Transportasi masa depan, modal besar.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZkYAaoChabfB-NDWOMYBberUZmiiq-jVED_6OAeZ0rGa34Cd3Au4fUTai1PHc' },
+            { id: 'emas', name: 'Emas Batangan 1g', price: 25000000, description: 'Investasi, harga jual bisa sangat tinggi.', imgUrl: 'https://tse2.mm.bing.net/th/id/OIP.gucAwSUQSSUvF7R9qaQHLwHaE8?pid=Api&P=0&h=220' },
+            { id: 'mobil_bekas', name: 'Mobil Bekas', price: 50000000, description: 'Kendaraan pribadi, untung besar.', imgUrl: 'https://tse2.mm.bing.net/th/id/OIP.M1P-pNWFX8TM0eAohXUTowHaE8?pid=Api&P=0&h=220' },
+            { id: 'tanah', name: 'Tanah Kavling', price: 90000000000, description: 'Aset berharga, untung fantastis.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJD1xsijtAMqyuL3nSOjamOvIeoA4b79zXNr-yAG5Ua91GOfYSQp_V382rR9Dm' },
+            { id: 'proyektor', name: 'Proyektor Mini', price: 350000, description: 'Bisa jadi home theater.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEzU9VxK3ah1Ypb2jFjvqsfOJjhVReZ0IwwJTj5K1Uzwy2Vvk4DEqJVFE6wrZZ' },
+            { id: 'drone_murah', name: 'Drone Mainan', price: 500000, description: 'Seru untuk main, harga jual fluktuatif.', imgUrl: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRi9OBT2QAAbGWhZVknmE6_K78lhMEpgCskdkbZ7DiDVjqNfe9EYyoyRl7g1dFG' },
+            { id: 'sneakers', name: 'Sneakers Langka', price: 600000, description: 'Barang koleksi, harga jual tinggi.', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.tMCi3Bq1pWsVNXmhm64PqgAAAA?pid=Api&P=0&h=220' },
+            { id: 'kursi_gaming', name: 'Kursi Gaming', price: 1200000, description: 'Nyaman untuk maraton game.', imgUrl: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSAXTLGOcVoh22bc_gfG1PjRBSlGKgASZ5bwlBJ0MWrPaK0n3nKWEj8YXwNNfUK' },
+            { id: 'ps5', name: 'PlayStation 5', price: 7000000, description: 'Konsol populer, untung terjamin.', imgUrl: 'https://shop.hikaritv.net/shopping/img/commodity/shop/plala/commodity/2010123620_k.jpg' },
+            { id: 'macbook', name: 'MacBook Air', price: 15000000, description: 'Laptop premium, untung besar.', imgUrl: 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcT_MFOAagFMZ8Cp4CZZ_OyY0toE2H_JOs12wuJi6YusOrYAQvC13n3NGzRFrvSpP75VWWcZ753cEUX2YZ33-rZu6UIhnSIn3Wtyfj1bKezwu_vrupM' },
+            { id: 'kulkas_pintar', name: 'Kulkas Pintar', price: 20000000, description: 'Teknologi canggih, keuntungan tinggi.', imgUrl: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTYry3kwSDw-ADREmTiGJNsXlR3r3CQxOXE7Hxd90I9zc2wZFGeEQFq9XLFdKxs' },
+            { id: 'motor_sport', name: 'Motor Sport', price: 35000000, description: 'Gaya balap, untung lumayan.', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.DNGEw-o_Arrr_-kR5QoivgHaFZ?pid=Api&P=0&h=220' },
+            { id: 'jam_rolex', name: 'Jam Rolex', price: 200000000, description: 'Lambang kekayaan sejati, keuntungan fantastis.', imgUrl: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQlmD96gucF7pnAKOccqbt0uFFFxtTtgzYKI3qIWCbQpIE74Ty-6dE1eNkJyuZy' },
+            { id: 'apartemen', name: 'Apartemen Studio', price: 500000000, description: 'Investasi properti, untung tak terbatas.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSACOn8hDN3wbLJOA_psyoj44Aa4ReLYNFou-gh3FfsCrczCE6kb5ZK4kRv85-c' },
+            { id: 'helikopter', name: 'Helikopter Pribadi', price: 15000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1295,h_863/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/wdyy0hww3kpnmtdka9h4/MatterhornPrivateHelicopterTourdariBern.jpg' },
+            { id: 'rol_royce', name: 'Rolls-Royce', price: 25000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.8NH1YgaKXXBA5P-ywmgfFAHaFj?pid=Api&P=0&h=220' },
+            { id: 'jet_pribadi', name: 'Jet Pribadi', price: 50000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'http://4.bp.blogspot.com/-9jy1aO_doYk/T1bm92nAlBI/AAAAAAAAFJE/xA0Qtl_pKIM/s1600/Pesawat-Jet-Pribadi.jpg' },
+             { id: 'bandara', name: 'Daxing airport', price: 200000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.-JY_cNfbb3fYvCNLVYZ7KwHaE5?pid=Api&h=220&P=0' },
+              { id: 'kapal laut', name: 'Icon Of the Seas', price: 300000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'https://travelobiz.com/wp-content/uploads/2024/01/Icon-of-the-Seas.jpg' },
+            { id: 'stadion', name: 'Stadion Bola', price: 500000000000, description: 'Puncak kekayaan, tidak ada lagi yang bisa dibeli!', imgUrl: 'https://thumb.tvonenews.com/thumbnail/2023/07/03/64a2a1461fc99-fraksi-pdip-sebut-jis-belum-tepat-dimanfaatkan-sebagai-stadion-bola_1265_711.jpg' },
+            { id: 'Jeddah', name: 'Jeddah Tower', price: 800000000000, description: 'Puncak kekayaan, super fantastis!!!', imgUrl: 'https://assets.rebelmouse.io/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbWFnZSI6Imh0dHBzOi8vYXNzZXRzLnJibC5tcy8xMDUwOTg3OC9vcmlnaW4uanBnIiwiZXhwaXJlc19hdCI6MTY1MTE0NDgyOX0.KrJqkWJ51aYYVz2jHxZAzjb8dDG4V27EBw-RMaZ6BUY/img.jpg?width=1200&height=960' },
+        ],
+        target: [
+            { id: 'Robot mini', name: 'Robot mini lucu', price: 750000, description: 'Untuk menemani saat tidur', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkLHvo_GuPdaJW3IbAo_32-nWQEI-tK_a2RUVlH13vGDSgmIcxA7AUmcXs9vMa' },
+            { id: 'drone_pro', name: 'Drone Profesional', price: 800000, description: 'Untuk videografi tingkat lanjut.', imgUrl: 'https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcS42AIg4HKjNGX0IpyexmYLXH0B3VClSXXhdyK5zXUbmlicFYx9o0ANco5ZCTxwfvqLnk0cQuwixwrZw7pR8qxxnMb8hut4ndn0nyC6O4_xFen4u2I' },
+            { id: 'tas_branded', name: 'Tas Branded', price: 25000000, description: 'Aksesori mewah, lambang status.', imgUrl: 'https://tse4.mm.bing.net/th/id/OIP.YgfC_DoJNeuLr5UDP6YGQAHaHa?pid=Api&P=0&h=220' },
+            { id: 'laptop', name: 'Laptop Gaming', price: 170000000, description: 'Puncak kekayaan pertama.', imgUrl: 'https://tse1.mm.bing.net/th/id/OIP.9mlqEvIIfc1drNPA5_3m0gHaEn?pid=Api&P=0&h=220' },
+            { id: 'mobil_sport', name: 'Mobil Sport', price: 12000000000, description: 'Keliling kota dengan gaya.', imgUrl: 'https://tse3.mm.bing.net/th/id/OIP.SaE-8fGdV0yt55_bkqw7vgHaFS?pid=Api&P=0&h=220' },
+            { id: 'liburan', name: 'Paket Liburan Domestik', price: 120000000, description: 'Nikmati hidup, beli tiket liburan.', imgUrl: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQWrXPhzkpKLUpOoV2BMoXVf0P4HoeOLs9MBbDwRGNveSuTqwvXK3q9ob9hZyd0' },
+            { id: 'jam', name: 'Jam Tangan Mewah', price: 500000000000, description: 'Bukti kamu benar-benar sultan.', imgUrl: 'https://up.yimg.com/ib/th/id/OIP.b4IsSjwcY69r9Aa9TtVxcwHaHa?pid=Api&rs=1&c=1&qlt=95&w=121&h=121' },
+            { id: 'mobil_mewah', name: 'Mobil Mewah', price: 800000000000, description: 'Hidup mewah, bebas kemana saja.', imgUrl: 'https://cdn.wallpapersafari.com/5/92/gSWFLU.jpg' },
+            { id: 'rumah', name: 'Rumah Impian', price: 60000000000, description: 'Kekayaan abadi, tak terkalahkan.', imgUrl: 'https://tse3.mm.bing.net/th/id/OIP.OUUKbsK7tLJ9WVLycv-TgQHaFs?pid=Api&P=0&h=220' },
+            { id: 'pulau_pribadi', name: 'Pulau Pribadi', price: 600000000000, description: 'Liburan pribadi tak terbatas.', imgUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB7nS4TFA9YaV-wQ6PzgyjSHpmRHTyv_NoLL4uGdG3iymacfJ4yUDm68ZAJVFA' },
+            { id: 'kapal_yacht', name: 'Abraj Al-Bait', price: 3000000000000, description: 'bangunan super mewah harga fantastis', imgUrl: 'https://www.webuildvalue.com/wp-content/uploads/2023/08/abraj-al-bait-tower.jpg' },
+            { id: 'roket_pribadi', name: 'ISS-ESA', price: 5000000000000, description: 'Untuk liburan ke luar angkasa.', imgUrl: 'https://static.sciencelearn.org.nz/images/images/000/000/254/full/International-Space-Station-ISS20150924-22473-1rqk4pa.jpg?1674163968' }
+        ]
+    };
+
+    // Fungsi untuk menyimpan data game ke localStorage
+    function saveGameState() {
+        const allUnclaimedBonuses = unclaimedBonuses.concat(unclaimedSahamBonuses);
+        const gameState = {
+            money: money,
+            inventory: inventory,
+            ownedTargets: ownedTargets,
+            unclaimedBonuses: allUnclaimedBonuses,
+            passiveBonuses: passiveBonuses
+        };
+        localStorage.setItem('sultanGabutGameState', JSON.stringify(gameState));
+    }
+
+    // Fungsi untuk memuat data game dari localStorage
+    function loadGameState() {
+        const savedState = localStorage.getItem('sultanGabutGameState');
+        if (savedState) {
+            const gameState = JSON.parse(savedState);
+            money = gameState.money;
+            inventory = gameState.inventory;
+            ownedTargets = gameState.ownedTargets;
+            passiveBonuses = gameState.passiveBonuses;
+            
+            // Perbaiki: Pisahkan bonus saham dan bonus lainnya saat memuat
+            unclaimedBonuses = gameState.unclaimedBonuses.filter(b => !b.sourceId || !b.sourceId.startsWith('saham-'));
+            unclaimedSahamBonuses = gameState.unclaimedBonuses.filter(b => b.sourceId && b.sourceId.startsWith('saham-'));
+
+            updateDisplay();
+        } else {
+            resetGame();
+        }
+    }
+
+    // Panggil saveGameState() saat halaman ditutup atau ditinggalkan
+    window.addEventListener('beforeunload', saveGameState);
+
+    // Panggil loadGameState() saat halaman dimuat untuk melanjutkan game
+    document.addEventListener('DOMContentLoaded', loadGameState);
+
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+    }
+
+    function updateDisplay() {
+        const moneyString = money.toString();
+        moneyDisplay.textContent = formatRupiah(money);
+        
+        moneyDisplay.classList.remove('small-text', 'extra-small-text');
+        if (moneyString.length > 13) {
+            moneyDisplay.classList.add('extra-small-text');
+        } else if (moneyString.length > 10) {
+            moneyDisplay.classList.add('small-text');
+        }
+
+        inventoryItemsContainer.innerHTML = '';
+        if (inventory.length === 0) {
+            emptyInventoryMessage.style.display = 'block';
+            inventoryItemsContainer.appendChild(emptyInventoryMessage);
+        } else {
+            emptyInventoryMessage.style.display = 'none';
+            inventory.forEach(item => {
+                const card = createItemCard(item, 'sell');
+                inventoryItemsContainer.appendChild(card);
+            });
+        }
+        renderBuyableItems();
+        renderTargetItems();
+        renderBonuses();
+        updateBonusNotification();
+    }
+
+    function createItemCard(item, type) {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+
+        if (item.imgUrl) {
+            const img = document.createElement('img');
+            img.src = item.imgUrl;
+            img.alt = item.name;
+            img.className = 'item-image';
+            card.appendChild(img);
+        }
+        
+        const title = document.createElement('h3');
+        title.textContent = item.name;
+        card.appendChild(title);
+        
+        const pricePara = document.createElement('p');
+        if (type === 'buy' || type === 'target' || type === 'saham') {
+            pricePara.innerHTML = `Harga: <span class="price">${formatRupiah(item.price)}</span>`;
+        } else if (type === 'sell') {
+            pricePara.innerHTML = `Harga Jual: <span class="price">${formatRupiah(item.sellPrice)}</span>`;
+        } else if (type === 'bonus') {
+            pricePara.innerHTML = `Bonus: <span class="price">${formatRupiah(item.bonusAmount)}</span>`;
+        }
+        card.appendChild(pricePara);
+        
+        const descPara = document.createElement('p');
+        descPara.textContent = item.description;
+        card.appendChild(descPara);
+
+        const button = document.createElement('button');
+        if (type === 'buy') {
+            button.textContent = 'Beli';
+            if (money < item.price) {
+                button.disabled = true;
+            }
+            button.addEventListener('click', () => buyItem(item));
+        } else if (type === 'sell') {
+            button.textContent = 'Jual';
+            if (item.sellPrice > item.buyPrice) {
+                button.classList.add('profit');
+            } else {
+                button.classList.add('loss');
+            }
+            button.addEventListener('click', () => sellItem(item, item.sellPrice));
+        } else if (type === 'target') {
+            button.textContent = `Beli`;
+            if (money < item.price || ownedTargets.includes(item.id)) {
+                button.disabled = true;
+            }
+            if (ownedTargets.includes(item.id)) {
+                button.textContent = 'Sudah Terbeli';
+                button.classList.add('owned');
+            }
+            button.addEventListener('click', () => buyTargetItem(item));
+        } else if (type === 'bonus') {
+            button.textContent = 'Klaim Bonus';
+            button.addEventListener('click', () => claimBonus(item.id, item.bonusAmount));
+        }
+
+        card.appendChild(button);
+        return card;
+    }
+
+    function generateSellPrice(buyPrice) {
+        const minPrice = buyPrice * 0.7;
+        const maxPrice = buyPrice * 1.5;
+        return Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice;
+    }
+
+    function calculateBonus(price) {
+        const bonusFactor = 1.33;
+        return Math.floor(price * bonusFactor);
+    }
+
+    function buyItem(item) {
+        if (money >= item.price) {
+            money -= item.price;
+            const itemWithSellAndBuyPrice = { ...item, sellPrice: generateSellPrice(item.price), buyPrice: item.price };
+            inventory.push(itemWithSellAndBuyPrice);
+            updateDisplay();
+        } else {
+            alert('Uangmu tidak cukup untuk membeli item ini!');
+        }
+        
+        saveGameState();
+    }
+
+    function checkPassiveBonuses() {
+        const now = Date.now();
+        passiveBonuses.forEach(bonus => {
+            // Perbaiki: Hanya tambahkan bonus jika bukan bonus saham
+            if (!bonus.id.startsWith('saham-') && now - bonus.lastClaim >= bonus.interval) {
+                unclaimedBonuses.push({ id: `passive-${bonus.id}-${now}`, name: `Pendapatan ${bonus.name}`, bonusAmount: bonus.amount, claimed: false });
+                bonus.lastClaim = now;
+            }
+        });
+        updateBonusNotification();
+    }
+
+    setInterval(checkPassiveBonuses, 10000);
+
+    function sellItem(itemToSell, sellPrice) {
+        money += sellPrice;
+        const index = inventory.findIndex(item => item.id === itemToSell.id && item.sellPrice === itemToSell.sellPrice);
+        if (index > -1) {
+            inventory.splice(index, 1);
+        }
+        updateDisplay();
+        saveGameState();
+    }
+
+    function buyTargetItem(item) {
+        if (money >= item.price) {
+            money -= item.price;
+            ownedTargets.push(item.id);
+            
+            const bonus = {
+                id: item.id,
+                name: item.name,
+                bonusAmount: calculateBonus(item.price),
+                claimed: false
+            };
+            unclaimedBonuses.push(bonus);
+            
+            updateDisplay();
+            checkWinCondition();
+        } else {
+            alert('Uangmu tidak cukup untuk membeli item ini!');
+        }
+        saveGameState();
+    }
+
+    function claimBonus(bonusId, bonusAmount) {
+        money += bonusAmount;
+        unclaimedBonuses = unclaimedBonuses.filter(bonus => bonus.id !== bonusId);
+        updateDisplay();
+        renderBonuses();
+        saveGameState();
+    }
+
+   function updateBonusNotification() {
+    const bonusCountSpan = document.querySelector('#show-bonus-btn .bonus-count');
+    if (!bonusCountSpan) return;
+    
+    // Perbaikan: Hanya hitung bonus yang bukan bonus pasif
+    const nonPassiveBonuses = unclaimedBonuses.filter(bonus => !bonus.id.startsWith('passive-'));
+    const count = nonPassiveBonuses.length; 
+    
+    if (count > 0) {
+        bonusCountSpan.textContent = count;
+        bonusCountSpan.style.display = 'block';
+    } else {
+        bonusCountSpan.style.display = 'none';
+    }
+}
+
+function renderBonuses() {
+    const bonusListContainer = document.getElementById('bonus-list');
+    bonusListContainer.innerHTML = '';
+    
+    // Perbaikan: Hanya render bonus yang bukan bonus pasif di pop-up
+    const bonusesToRender = unclaimedBonuses.filter(bonus => !bonus.id.startsWith('passive-'));
+
+    if (bonusesToRender.length === 0) {
+        emptyBonusMessage.style.display = 'block';
+        bonusListContainer.appendChild(emptyBonusMessage);
+    } else {
+        emptyBonusMessage.style.display = 'none';
+        bonusesToRender.forEach(bonus => {
+            const bonusCard = createItemCard({
+                id: bonus.id,
+                name: `Bonus dari ${bonus.name}`,
+                description: `Dapatkan bonus sebesar ${formatRupiah(bonus.bonusAmount)}!`,
+                bonusAmount: bonus.bonusAmount
+            }, 'bonus');
+            bonusListContainer.appendChild(bonusCard);
+        });
+    }
+}
+    function checkWinCondition() {
+        const totalTargets = items.target.length;
+        const hasYacht = ownedTargets.includes('kapal_yacht');
+        const hasISS = ownedTargets.includes('roket_pribadi');
+        const targetsWithoutSuperExpensive = items.target.filter(item => item.id !== 'roket_pribadi' && item.id !== 'kapal_yacht').length;
+        const ownedWithoutSuperExpensive = ownedTargets.filter(id => id !== 'roket_pribadi' && id !== 'kapal_yacht').length;
+
+        if (ownedWithoutSuperExpensive === targetsWithoutSuperExpensive && !hasYacht && !hasISS) {
+            document.getElementById('modal-title').textContent = 'Selamat! Kamu Kaya Raya!';
+            document.getElementById('modal-message').innerHTML = 'Kamu berhasil membeli semua barang target, kecuali Abraj Al-Bait dan ISS-ESA. Mau lanjut tantangan beli keduanya?';
+
+            const continueBtn = document.createElement('button');
+            continueBtn.textContent = 'Lanjut Tantangan';
+            continueBtn.id = 'continue-btn';
+            continueBtn.onclick = () => {
+                winModalOverlay.classList.remove('show');
+            };
+
+            const finishBtn = document.createElement('button');
+            finishBtn.textContent = 'Selesaikan';
+            finishBtn.id = 'finish-btn';
+            finishBtn.onclick = () => {
+                document.getElementById('modal-title').textContent = 'Selamat! Kamu Benar-Benar Kaya!';
+                document.getElementById('modal-message').textContent = 'Kamu berhasil menyelesaikan permainan! Kamu adalah pengusaha sukses!';
+                
+                const modalFooter = document.querySelector('#win-modal-overlay .modal-footer');
+                modalFooter.innerHTML = '';
+                const restartBtn = document.createElement('button');
+                restartBtn.textContent = 'Mulai Ulang';
+                restartBtn.onclick = () => {
+                     resetGame();
+                };
+                modalFooter.appendChild(restartBtn);
+            };
+            
+            const modalFooter = document.querySelector('#win-modal-overlay .modal-footer');
+            modalFooter.innerHTML = '';
+            modalFooter.appendChild(continueBtn);
+            modalFooter.appendChild(finishBtn);
+            
+            winModalOverlay.classList.add('show');
+        } else if (ownedTargets.length === totalTargets) {
+            document.getElementById('modal-title').textContent = 'WAhhhhhh keren kamu super super kaya!!!!!!!!!';
+            document.getElementById('modal-message').textContent = 'Kamu berhasil membeli semua barang target, termasuk Abraj Al-Bait dan roket ISS-ESA! Kamu adalah sultan sejati!';
+            
+            const modalFooter = document.querySelector('#win-modal-overlay .modal-footer');
+            modalFooter.innerHTML = '';
+            const restartBtn = document.createElement('button');
+            restartBtn.textContent = 'Mulai Ulang';
+            restartBtn.onclick = () => {
+                 resetGame();
+            };
+            modalFooter.appendChild(restartBtn);
+            
+            winModalOverlay.classList.add('show');
+        }
+    }
+
+    function renderBuyableItems() {
+        buyItemsContainer.innerHTML = '';
+        items.buyable.forEach(item => {
+            const card = createItemCard(item, 'buy');
+            buyItemsContainer.appendChild(card);
+        });
+    }
+
+    function renderTargetItems() {
+        targetItemsContainer.innerHTML = '';
+        items.target.forEach(item => {
+            const card = createItemCard(item, 'target');
+            card.id = `target-${item.id}`;
+            card.classList.add('target');
+            if (ownedTargets.includes(item.id)) {
+                card.classList.add('owned');
+            }
+            targetItemsContainer.appendChild(card);
+        });
+    }
+
+  
+
+    function resetGame() {
+        money = 100000;
+        inventory = [];
+        ownedTargets = [];
+        unclaimedBonuses = [];
+        passiveBonuses = [];
+        unclaimedSahamBonuses = []; // Pastikan bonus saham juga direset
+        localStorage.removeItem('sultanGabutGameState');
+        
+        updateDisplay();
+        renderBuyableItems();
+        renderTargetItems();
+        renderBonuses();
+        
+        winModalOverlay.classList.remove('show');
+    }
+
+    closeWinModalBtn.addEventListener('click', () => {
+        resetGame();
+    });
+
+    closeBonusModalBtn.addEventListener('click', () => {
+        bonusModalOverlay.classList.remove('show');
+    });
+
+    resetBtn.addEventListener('click', () => {
+        resetGame();
+    });
+
+    scrollToInventoryBtn.addEventListener('click', () => {
+        const inventorySection = document.getElementById('inventory-items');
+        if (inventorySection) {
+            inventorySection.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+
+    showBonusBtn.addEventListener('click', () => {
+        bonusModalOverlay.classList.add('show');
+        renderBonuses();
+    });
+
+    sahamBtn.addEventListener('click', () => {
+        saveGameState();
+        window.location.href = 'saham.html';
+    });
+
+    // Load the game state when the page finishes loading
+    loadGameState();
+</script>
+</body>
+</html>

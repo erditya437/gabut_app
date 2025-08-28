@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Username Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a202c;
+            --muted: #718096;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #06b6d4;
+            --border: #e2e8f0;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--muted);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-primary);
+        }
+
+        .app {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: clamp(24px, 5vw, 36px);
+            margin: 0 0 4px;
+            font-weight: 700;
+        }
+
+        p.sub {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .controls {
+            display: grid;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 720px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        label {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 500;
+        }
+
+        select, input[type="text"], input[type="range"] {
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 480px) {
+            .row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            flex: 1;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        button.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .results {
+            margin-top: 24px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .card.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .roman {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .footer {
+            margin-top: 32px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .range-wrap {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+        }
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn" aria-label="Kembali ke halaman utama">←</a>
+    </div>
+    <div class="container">
+        <div class="app">
+            <h1>Username Generator</h1>
+            <p>Pilih bahasa, gaya, dan jumlah karakter</p>
+            <p class="sub">Tiongkok • Vietnam • Jepang • Thailand</p>
+
+            <div class="controls">
+                <div class="grid">
+                    <div>
+                        <label for="lang">Bahasa</label>
+                        <select id="lang">
+                            <option value="cn">Tiongkok (中文)</option>
+                            <option value="vi">Vietnam (Tiếng Việt)</option>
+                            <option value="jp">Jepang (日本語)</option>
+                            <option value="th">Thailand (ไทย)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="style">Gaya</label>
+                        <select id="style">
+                            <option value="any">Apa saja</option>
+                            <option value="male">Maskulin</option>
+                            <option value="female">Feminim</option>
+                            <option value="unisex">Unisex</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <label for="count">Jumlah</label>
+                        <div class="range-wrap">
+                            <input type="range" id="count" min="1" max="15" value="5" />
+                            <span id="countVal" class="chip">5</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="seed">Seed (opsional, untuk hasil konsisten)</label>
+                        <input id="seed" type="text" placeholder="contoh: adit-001" />
+                    </div>
+                </div>
+
+                <div class="row" id="extra-cn">
+                    <div>
+                        <label for="cn-len">Panjang nama depan (汉字)</label>
+                        <select id="cn-len">
+                            <option value="1">1 karakter</option>
+                            <option value="2" selected>2 karakter</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Romanisasi</label>
+                        <div class="inline">
+                            <label class="chip"><input type="checkbox" id="show-pinyin" checked/> Tampilkan pinyin</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="extra-vi" style="display:none">
+                    <div>
+                        <label for="vi-middle">Tambahkan nama tengah</label>
+                        <select id="vi-middle">
+                            <option value="auto" selected>Auto</option>
+                            <option value="always">Selalu</option>
+                            <option value="never">Tidak</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Format</label>
+                        <div class="inline">
+                            <label class="chip"><input type="checkbox" id="vi-roman" checked/> Tanpa diakritik (ASCII)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="extra-jp" style="display:none">
+                    <div>
+                        <label>Script</label>
+                        <select id="jp-script">
+                            <option value="kanji" selected>Kanji + Kana</option>
+                            <option value="kana">Hiragana/Katakana</option>
+                            <option value="romaji">Romaji saja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="hint">Kanji dipilih dari set umum, tidak merefleksikan makna spesifik.</label>
+                    </div>
+                </div>
+
+                <div class="row" id="extra-th" style="display:none">
+                    <div>
+                        <label for="th-formality">Formalitas</label>
+                        <select id="th-formality">
+                            <option value="any" selected>Apa saja</option>
+                            <option value="formal">Lebih formal</option>
+                            <option value="casual">Lebih kasual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="hint">Nama Thailand bisa dalam aksara Thai + transliterasi.</label>
+                    </div>
+                </div>
+
+                <div class="btns">
+                    <button id="gen">Generate</button>
+                    <button class="secondary" id="copy">Copy Hasil</button>
+                    <button class="secondary" id="shuffle">Acak Seed</button>
+                </div>
+            </div>
+
+            <div class="results" id="results" aria-live="polite"></div>
+
+            <div class="footer">
+                Dibuat untuk hiburan. Nama yang dihasilkan tidak menjamin akurasi budaya/penulisan.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Utilities ---
+        function xmur3(str) {
+            let h = 1779033703 ^ str.length;
+            for (let i = 0; i < str.length; i++) {
+                h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+                h = (h << 13) | (h >>> 19);
+            }
+            return function () {
+                h = Math.imul(h ^ (h >>> 16), 2246822507);
+                h = Math.imul(h ^ (h >>> 13), 3266489909);
+                return (h ^= h >>> 16) >>> 0;
+            };
+        }
+        function mulberry32(a) {
+            return function () {
+                let t = (a += 0x6d2b79f5);
+                t = Math.imul(t ^ (t >>> 15), t | 1);
+                t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+        function seeded(seedStr) {
+            const seed = xmur3(seedStr)();
+            return mulberry32(seed);
+        }
+        function rng() {
+            return Math.random();
+        }
+        function pick(arr, r) {
+            const i = Math.floor((r ?? rng()) * arr.length);
+            return arr[i];
+        }
+        function chance(p, r) {
+            return (r ?? rng()) < p;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard?.writeText(text).then(() => {
+                alert('Teks berhasil disalin!');
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                alert('Teks berhasil disalin!');
+            });
+        }
+
+        // --- Data ---
+        const CN = {
+            surnames: [
+                ['李', 'Lǐ'], ['王', 'Wáng'], ['张', 'Zhāng'], ['刘', 'Liú'], ['陈', 'Chén'],
+                ['杨', 'Yáng'], ['赵', 'Zhào'], ['黄', 'Huáng'], ['周', 'Zhōu'], ['吴', 'Wú']
+            ],
+            givenCharsMale: [['伟', 'Wěi'], ['强', 'Qiáng'], ['杰', 'Jié'], ['勇', 'Yǒng'], ['波', 'Bō']],
+            givenCharsFemale: [['美', 'Měi'], ['娜', 'Nà'], ['静', 'Jìng'], ['芳', 'Fāng'], ['丽', 'Lì']],
+            givenCharsUnisex: [['晨', 'Chén'], ['宁', 'Níng'], ['欣', 'Xīn'], ['然', 'Rán'], ['可', 'Kě']]
+        };
+
+        const VI = {
+            surnames: ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh'],
+            middles: ['Thị', 'Văn', 'Quốc', 'Thanh', 'Ngọc', 'Minh'],
+            givenMale: ['Anh', 'Bảo', 'Cường', 'Dũng', 'Huy', 'Minh'],
+            givenFemale: ['An', 'Chi', 'Duyên', 'Hương', 'Lan', 'Linh'],
+            givenUnisex: ['Vy', 'Yến', 'Mi', 'Thư', 'Phương']
+        };
+
+        const JP = {
+            surnames: [
+                ['佐藤', 'Satō'], ['鈴木', 'Suzuki'], ['高橋', 'Takahashi'], ['田中', 'Tanaka'], ['伊藤', 'Itō']
+            ],
+            givenMale: [['大輝', 'Daiki', 'たいき'], ['蓮', 'Ren', 'れん'], ['陽斗', 'Haruto', 'はると'], ['蒼', 'Ao', 'あお']],
+            givenFemale: [['陽菜', 'Hina', 'ひな'], ['美咲', 'Misaki', 'みさき'], ['結衣', 'Yui', 'ゆい'], ['さくら', 'Sakura', 'さくら']],
+            givenUnisex: [['光', 'Hikari', 'ひかり'], ['葵', 'Aoi', 'あおい'], ['優', 'Yū', 'ゆう'], ['空', 'Sora', 'そら']]
+        };
+
+        const TH = {
+            surnames: [
+                ['ศิริชัย', 'Sirichai'], ['จันทรา', 'Chanthra'], ['สุขสันต์', 'Suksan'], ['วัฒนชัย', 'Wattanachai']
+            ],
+            givenMale: [['อนันต์', 'Anan'], ['นพดล', 'Noppadol'], ['ธนา', 'Thana']],
+            givenFemale: [['สุชาดา', 'Suchada'], ['ปิยะดา', 'Piyada'], ['วราภรณ์', 'Waraporn']],
+            givenUnisex: [['ภา', 'Pha'], ['ณิชา', 'Nicha'], ['พลอย', 'Ploy']],
+            casualNicknames: [['โบ', 'Bo'], ['กอล์ฟ', 'Golf'], ['บูม', 'Boom'], ['น้ำหวาน', 'Namwan']]
+        };
+
+        function stripDiacriticsVietnamese(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // --- Generators ---
+        function genCN(pr) {
+            const style = document.getElementById('style').value;
+            const len = parseInt(document.getElementById('cn-len').value, 10);
+            const showPinyin = document.getElementById('show-pinyin').checked;
+            const [surH, surP] = pick(CN.surnames, pr());
+            let pool = CN.givenCharsUnisex.slice();
+            if (style === 'male') pool = pool.concat(CN.givenCharsMale);
+            else if (style === 'female') pool = pool.concat(CN.givenCharsFemale);
+            else if (style === 'any') pool = pool.concat(CN.givenCharsMale, CN.givenCharsFemale);
+            let chars = [];
+            for (let i = 0; i < len; i++) {
+                chars.push(pick(pool, pr()));
+            }
+            const native = surH + chars.map(c => c[0]).join('');
+            const pinyin = surP + ' ' + chars.map(c => c[1]).join(' ');
+            return { native, roman: showPinyin ? pinyin : '' };
+        }
+
+        function genVI(pr) {
+            const style = document.getElementById('style').value;
+            const middleOpt = document.getElementById('vi-middle').value;
+            const ascii = document.getElementById('vi-roman').checked;
+            const sur = pick(VI.surnames, pr());
+            let givenPool = VI.givenUnisex.slice();
+            if (style === 'male') givenPool = givenPool.concat(VI.givenMale);
+            else if (style === 'female') givenPool = givenPool.concat(VI.givenFemale);
+            else if (style === 'any') givenPool = givenPool.concat(VI.givenMale, VI.givenFemale);
+            const given = pick(givenPool, pr());
+            let middle = '';
+            const insertMiddle = middleOpt === 'always' || (middleOpt === 'auto' && chance(0.6, pr()));
+            if (insertMiddle) {
+                middle = pick(VI.middles, pr());
+            }
+            const parts = [sur, middle, given].filter(Boolean);
+            const native = parts.join(' ');
+            const roman = ascii ? stripDiacriticsVietnamese(native) : '';
+            return { native, roman };
+        }
+
+        function genJP(pr) {
+            const style = document.getElementById('style').value;
+            const script = document.getElementById('jp-script').value;
+            const [surKanji, surRomaji] = pick(JP.surnames, pr());
+            let pool = JP.givenUnisex.slice();
+            if (style === 'male') pool = pool.concat(JP.givenMale);
+            else if (style === 'female') pool = pool.concat(JP.givenFemale);
+            else if (style === 'any') pool = pool.concat(JP.givenMale, JP.givenFemale);
+            const [gKanjiOrKana, gRomaji, gKana] = pick(pool, pr());
+
+            if (script === 'romaji') {
+                return { native: `${surRomaji} ${gRomaji}`, roman: '' };
+            }
+            if (script === 'kana') {
+                return { native: `${gKana} ${pick(['かな', 'カナ'], pr())}`, roman: `${surRomaji} ${gRomaji}` }; // Fun: simplified kana surname
+            }
+            const native = `${surKanji} ${gKanjiOrKana}`;
+            const roman = `${surRomaji} ${gRomaji} (${gKana})`;
+            return { native, roman };
+        }
+
+        function genTH(pr) {
+            const style = document.getElementById('style').value;
+            const formal = document.getElementById('th-formality').value;
+            const [surTh, surLat] = pick(TH.surnames, pr());
+            let pool = TH.givenUnisex.slice();
+            if (style === 'male') pool = pool.concat(TH.givenMale);
+            else if (style === 'female') pool = pool.concat(TH.givenFemale);
+            else if (style === 'any') pool = pool.concat(TH.givenMale, TH.givenFemale);
+            let [gTh, gLat] = pick(pool, pr());
+            if (formal === 'casual' && chance(0.5, pr())) { // Pick casual nickname
+                [gTh, gLat] = pick(TH.casualNicknames, pr());
+            }
+            const native = `${gTh} ${surTh}`;
+            const roman = `${gLat} ${surLat}`;
+            return { native, roman };
+        }
+
+        function genOne(pr) {
+            const lang = document.getElementById('lang').value;
+            if (lang === 'cn') return genCN(pr);
+            if (lang === 'vi') return genVI(pr);
+            if (lang === 'jp') return genJP(pr);
+            if (lang === 'th') return genTH(pr);
+        }
+
+        function render(list) {
+            const wrap = document.getElementById('results');
+            wrap.innerHTML = '';
+            list.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'card hidden';
+                div.innerHTML = `<div class="name">${item.native}</div>` + (item.roman ? `<div class="roman">${item.roman}</div>` : '');
+                wrap.appendChild(div);
+                setTimeout(() => {
+                    div.classList.remove('hidden');
+                }, 50 * index);
+            });
+        }
+
+        function updateExtras() {
+            const lang = document.getElementById('lang').value;
+            document.getElementById('extra-cn').style.display = (lang === 'cn') ? 'grid' : 'none';
+            document.getElementById('extra-vi').style.display = (lang === 'vi') ? 'grid' : 'none';
+            document.getElementById('extra-jp').style.display = (lang === 'jp') ? 'grid' : 'none';
+            document.getElementById('extra-th').style.display = (lang === 'th') ? 'grid' : 'none';
+        }
+
+        // --- Wire up ---
+        const countEl = document.getElementById('count');
+        const countVal = document.getElementById('countVal');
+        countEl.addEventListener('input', () => {
+            countVal.textContent = countEl.value;
+        });
+        document.getElementById('lang').addEventListener('change', updateExtras);
+
+        document.getElementById('shuffle').addEventListener('click', () => {
+            const s = 'seed-' + Math.random().toString(36).slice(2, 8);
+            document.getElementById('seed').value = s;
+        });
+
+        document.getElementById('copy').addEventListener('click', () => {
+            const names = Array.from(document.querySelectorAll('.card .name')).map(n => n.textContent);
+            copyToClipboard(names.join('\n'));
+        });
+
+        document.getElementById('gen').addEventListener('click', () => {
+            const n = parseInt(countEl.value, 10);
+            const seedStr = document.getElementById('seed').value.trim();
+            const pr = seedStr ? seeded(seedStr) : rng;
+            const out = [];
+            for (let i = 0; i < n; i++) {
+                out.push(genOne(pr));
+            }
+            render(out);
+        });
+
+        // initial
+        updateExtras();
+    </script>
+</body>
+</html>
